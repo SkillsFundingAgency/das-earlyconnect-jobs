@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="RegexPatterns.cs" />
+    <Compile Remove="Result.cs" />
+    <Compile Remove="StringExtensions.cs" />
+    <Compile Remove="ValueObject.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="refit" Version="7.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.5" />
+  </ItemGroup>
+
+</Project>

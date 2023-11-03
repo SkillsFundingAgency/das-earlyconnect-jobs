@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Infrastructure\SFA.DAS.EarlyConnect.Infrastructure.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Models\SFA.DAS.EarlyConnect.Models.csproj" />
+  </ItemGroup>
+</Project>
