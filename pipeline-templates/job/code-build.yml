@@ -1,17 +1,15 @@
+parameters:
+  SolutionBaseName:
+
 jobs:
 - job: CodeBuild
   pool:
-    name: DAS - Continuous Integration
-    demands: Agent.OS -equals Windows_NT
+    name: DAS - Continuous Integration Agents
+    demands: LATEST_DOTNET_VERSION -equals 3.1
+  variables:
+  - group: BUILD Management Resources
   workspace:
     clean: all
-  variables:
-  - name: buildConfiguration
-    value: 'release'
-  - name: buildPlatform
-    value: 'anycpu'
-  - group: BUILD Management Resources
-
   steps:
   - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
@@ -20,22 +18,23 @@ jobs:
       SonarCloudProjectKey: SkillsFundingAgency_SFA-DAS-EarlyConnect-Jobs
 
   - task: DotNetCoreCLI@2
-    displayName: 'Student Data Import Function'
+    displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}
     inputs:
       command: publish
       publishWebProjects: false
-      projects: 'src/SFA.DAS.EarlyConnect.Functions/SFA.DAS.EarlyConnect.Functions.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish'
+      projects: src/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.csproj
+      arguments: -o $(build.artifactstagingdirectory)/publish -c release --no-build
 
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    displayName: Copy Files to $(build.artifactstagingdirectory)/publish
     inputs:
       Contents: |
         azure/**
-      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      TargetFolder: $(build.artifactstagingdirectory)/publish
       OverWrite: true
 
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact'
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Artifact - EarlyConnectFunctions
     inputs:
-      PathtoPublish: '$(build.artifactstagingdirectory)/publish'
+      targetPath: $(build.artifactstagingdirectory)/publish
+      artifactName: EarlyConnectFunctions
