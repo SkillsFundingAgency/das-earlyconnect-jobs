@@ -18,7 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EarlyConnect.Application\SFA.DAS.EarlyConnect.Application.csproj" />
-    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Services\SFA.DAS.EarlyConnect.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

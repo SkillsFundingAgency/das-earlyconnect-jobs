@@ -13,8 +13,6 @@ using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Application.Handler;
 using SFA.DAS.EarlyConnect.Functions;
-using SFA.DAS.EarlyConnect.Services.Interfaces.MetricsDataService;
-using SFA.DAS.EarlyConnect.Services.MetricsDataService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.EarlyConnect.Functions
@@ -61,7 +59,6 @@ namespace SFA.DAS.EarlyConnect.Functions
 
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
-            services.AddTransient<IMetricsDataService, MetricsDataService>();
             services.AddTransient<ICsvService, CsvService>();
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IBlobService, BlobService>();
