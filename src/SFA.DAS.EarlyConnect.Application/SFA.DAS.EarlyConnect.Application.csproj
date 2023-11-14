@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Services\SFA.DAS.EarlyConnect.Services.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Infrastructure\SFA.DAS.EarlyConnect.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

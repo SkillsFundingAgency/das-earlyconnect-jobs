@@ -8,13 +8,13 @@ using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.EarlyConnect.Services.StudentDataService;
-using SFA.DAS.EarlyConnect.Services.Interfaces.StudentDataService;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Application.Handler;
 using SFA.DAS.EarlyConnect.Functions;
+using SFA.DAS.EarlyConnect.Services.Interfaces.MetricsDataService;
+using SFA.DAS.EarlyConnect.Services.MetricsDataService;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.EarlyConnect.Functions
@@ -60,11 +60,10 @@ namespace SFA.DAS.EarlyConnect.Functions
             services.AddOptions();
 
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
-            services.AddTransient<IStudentDataBulkUploadHandler, StudentDataBulkUploadHandler>();
-            services.AddTransient<IStudentDataService, StudentDataService>();
+            services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+            services.AddTransient<IMetricsDataService, MetricsDataService>();
             services.AddTransient<ICsvService, CsvService>();
             services.AddSingleton<IConfiguration>(configuration);
-            //services.AddTransient<ICsvService, CsvService>();
             services.AddTransient<IBlobService, BlobService>();
             services.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
                 new BlobContainerClientWrapper(configuration.GetValue<string>("AzureWebJobsStorage")));

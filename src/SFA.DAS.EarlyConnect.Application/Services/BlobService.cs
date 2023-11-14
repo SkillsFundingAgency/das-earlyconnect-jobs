@@ -1,14 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Azure;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 
 namespace SFA.DAS.EarlyConnect.Application.Services
 {
-    public interface IBlobService
-    {
-        Task DeleteFile(string uniqueFileIdentifier, string containerName);
-    }
-
     public class BlobService : IBlobService
     {
         private readonly ILogger<IBlobService> _logger;
@@ -25,15 +20,8 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             await _blobContainerClientWrapper.DeleteBlobAsync(uniqueFileIdentifier, containerName);
         }
     }
-
-    public interface IBlobClientWrapper
+    public interface IBlobService
     {
-        IBlobContainerClientWrapper GetBlobContainerClient(string blobContainerName);
-    }
-
-
-    public interface IBlobContainerClientWrapper
-    {
-        Task<Response> DeleteBlobAsync(string blobName, string containerName);
+        Task DeleteFile(string uniqueFileIdentifier, string containerName);
     }
 }

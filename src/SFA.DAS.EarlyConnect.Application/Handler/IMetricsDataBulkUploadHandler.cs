@@ -4,7 +4,7 @@ using SFA.DAS.EarlyConnect.Models.BulkImport;
 
 namespace SFA.DAS.EarlyConnect.Application.Handler
 {
-    public interface IStudentDataBulkUploadHandler
+    public interface IMetricsDataBulkUploadHandler
     {
         Task<BulkImportStatus> Handle(Stream fileStream);
     }

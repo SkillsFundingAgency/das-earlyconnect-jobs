@@ -5,9 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CsvHelper;
-using CsvHelper.Configuration;
 using FormatValidator;
-using SFA.DAS.EarlyConnect.Models.StudentData;
 using SFA.DAS.EarlyConnect.Models.Validation;
 
 namespace SFA.DAS.EarlyConnect.Application.Services
@@ -54,43 +52,6 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             }
         }
 
-        public async Task<List<StudentData>> ParseCsvData(StreamReader streamReader)
-        {
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HasHeaderRecord = true, // Set this to true if your CSV has a header row
-                BadDataFound = null // Optionally handle bad data
-            };
-
-            using (var csv = new CsvReader(streamReader, config))
-            {
-                csv.Context.RegisterClassMap<StudentDataMap>();
-                return csv.GetRecords<StudentData>().ToList();
-            }
-        }
-
-        public int GetByteCount<T>(IList<T> leads)
-        {
-            var csvString = ToCsv(leads);
-
-            return System.Text.Encoding.Unicode.GetByteCount(csvString);
-        }
-
-        public string ToCsv<T>(IList<T> leads)
-        {
-
-            using (var writer = new StringWriter())
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                csv.Context.RegisterClassMap<StudentDataMap>();
-
-                csv.WriteRecords(leads);
-
-                writer.Flush();
-                return writer.ToString();
-            }
-        }
-
         public bool IsEmpty(StreamReader stream)
         {
 
@@ -117,39 +78,12 @@ namespace SFA.DAS.EarlyConnect.Application.Services
 
             return String.IsNullOrWhiteSpace(secondLine) == false;
         }
-
-
-        //public sealed class StudentDataMap : ClassMap<StudentData>
-        public class StudentDataMap : ClassMap<StudentData>
-        {
-            public StudentDataMap()
-            {
-                Map(m => m.FirstName).Name("firstName").Optional();
-                Map(m => m.LastName).Name("lastName").Optional();
-                //Map(m => m.DateOfBirth).ConvertUsing(row => ParseDateOfBirth(row.GetField("age")));
-                Map(m => m.Email).Name("email").Optional();
-                Map(m => m.Postcode).Name("postcode").Optional();
-                Map(m => m.Industry).Name("industrydescription").Optional();
-                //Map(m => m.DateOfInterest).ConvertUsing(row => ParseDateOfInterest(row.GetField("ExtractDate")));
-            }
-
-            private DateTime ParseDateOfBirth(string age)
-            {
-                if (int.TryParse(age, out int ageValue))
-                {
-                    return DateTime.Now.AddYears(-ageValue);
-                }
-                return DateTime.MinValue;
-            }
-
-            private DateTime ParseDateOfInterest(string extractDate)
-            {
-                if (DateTime.TryParse(extractDate, out DateTime date))
-                {
-                    return date;
-                }
-                return DateTime.MinValue;
-            }
-        }
+    }
+    public interface ICsvService
+    {
+        CsvValidationeResult Validate(StreamReader csvStream, IList<string> fields);
+        Task<IList<dynamic>> ConvertToList(StreamReader csvStream);
+        bool IsEmpty(StreamReader stream);
+        bool HasData(StreamReader stream);
     }
 }

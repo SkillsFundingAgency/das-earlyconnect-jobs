@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
-using SFA.DAS.EarlyConnect.Application.Services;
 
 namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
 {
@@ -15,7 +14,6 @@ namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
             _connectionString = connectionString;
         }
 
-     
 
         //public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationBlobName, string destinationContainerName)
         //{
@@ -35,11 +33,16 @@ namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
         //    return new Response();
         //}
 
-    public Task<Response> DeleteBlobAsync(string blobName, string containerName)
+        public Task<Response> DeleteBlobAsync(string blobName, string containerName)
         {
             _blobContainerClient = new BlobContainerClient(_connectionString, containerName);
 
             return _blobContainerClient.DeleteBlobAsync(blobName);
         }
+    }
+
+    public interface IBlobContainerClientWrapper
+    {
+        Task<Response> DeleteBlobAsync(string blobName, string containerName);
     }
 }

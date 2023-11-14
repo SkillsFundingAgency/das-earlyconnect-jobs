@@ -8,28 +8,28 @@ using SFA.DAS.EarlyConnect.Application.Services;
 
 namespace SFA.DAS.EarlyConnect.Functions
 {
-    public class ImportStudentData
+    public class ImportMetricsData
     {
         private readonly IBlobService _blobService;
-        private readonly IStudentDataBulkUploadHandler _studentDataBulkUploadHandler;
-        private readonly string _container = "studentdata";
+        private readonly IMetricsDataBulkUploadHandler _metricsDataBulkUploadHandler;
+        private readonly string _container = "import-metricsdata";
 
-        public ImportStudentData(IStudentDataBulkUploadHandler studentDataBulkUploadHandler, IBlobService blobService, ILogger<ImportStudentData> log)
+        public ImportMetricsData(IMetricsDataBulkUploadHandler metricsDataBulkUploadHandler, IBlobService blobService, ILogger<ImportMetricsData> log)
         {
-            this._studentDataBulkUploadHandler = studentDataBulkUploadHandler;
+            this._metricsDataBulkUploadHandler = metricsDataBulkUploadHandler;
             _blobService = blobService;
         }
-        [FunctionName("ImportStudentData")]
-        public async Task Run([BlobTrigger("import-studentdata/{fileName}")] Stream fileStream, string fileName, ILogger log)
+        [FunctionName("ImportMetricsData")]
+        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log)
         {
-            if (fileName.Contains("Student Data Upload"))
+            if (fileName.Contains("Metrics Data Upload"))
             {
                 log.LogInformation($"C# Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 try
                 {
 
-                    await _studentDataBulkUploadHandler.Handle(fileStream);
+                    await _metricsDataBulkUploadHandler.Handle(fileStream);
 
                     fileStream.Close();
 

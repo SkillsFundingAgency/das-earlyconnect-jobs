@@ -6,12 +6,11 @@
 
   <ItemGroup>
     <Compile Remove="Marketo\**" />
+    <Compile Remove="Services\**" />
     <EmbeddedResource Remove="Marketo\**" />
+    <EmbeddedResource Remove="Services\**" />
     <None Remove="Marketo\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
