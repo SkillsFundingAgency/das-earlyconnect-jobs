@@ -10,8 +10,8 @@ using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
+using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
-using SFA.DAS.EarlyConnect.Application.Handler;
 using SFA.DAS.EarlyConnect.Functions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -67,7 +67,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
             var executioncontextoptions = services.BuildServiceProvider()
                 .GetService<IOptions<ExecutionContextOptions>>().Value;
- 
+
             services.AddLogging((options) =>
             {
                 options.SetMinimumLevel(LogLevel.Trace);

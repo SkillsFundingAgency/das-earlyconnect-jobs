@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EarlyConnect.Application.Handler;
+using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Application.Services;
 
 namespace SFA.DAS.EarlyConnect.Functions
@@ -29,11 +29,11 @@ namespace SFA.DAS.EarlyConnect.Functions
                 try
                 {
 
-                    await _metricsDataBulkUploadHandler.Handle(fileStream);
+                    var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream);
+
 
                     fileStream.Close();
 
-                    //await _blobService.DeleteFile(fileName, _container);
 
                 }
                 catch (Exception ex)

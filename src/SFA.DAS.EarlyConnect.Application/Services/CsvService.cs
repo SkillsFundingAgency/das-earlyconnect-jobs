@@ -5,41 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CsvHelper;
-using FormatValidator;
-using SFA.DAS.EarlyConnect.Models.Validation;
 
 namespace SFA.DAS.EarlyConnect.Application.Services
 {
     public class CsvService : ICsvService
     {
-        public CsvValidationeResult Validate(StreamReader csvStream, IList<string> fields)
-        {
-            var config = new ValidatorConfiguration();
-
-            config.ColumnSeperator = ",";
-            config.HasHeaderRow = true;
-            config.RowSeperator = Environment.NewLine;
-
-            for (int i = 0; i < fields.Count; i++)
-            {
-                config.Columns.Add(i, new ColumnValidatorConfiguration()
-                {
-                    Name = fields[i],
-                    IsNumeric = false,
-                    Unique = true
-                });
-            }
-
-            Validator validator = Validator.FromConfiguration(config);
-            var sourceReader = new StreamSourceReader(csvStream.BaseStream);
-
-            var validationResult = new CsvValidationeResult
-            {
-                Errors = validator.Validate(sourceReader).ToList()
-            };
-            return validationResult;
-        }
-
         public async Task<IList<dynamic>> ConvertToList(StreamReader personCsv)
         {
             personCsv.DiscardBufferedData();
@@ -81,7 +51,6 @@ namespace SFA.DAS.EarlyConnect.Application.Services
     }
     public interface ICsvService
     {
-        CsvValidationeResult Validate(StreamReader csvStream, IList<string> fields);
         Task<IList<dynamic>> ConvertToList(StreamReader csvStream);
         bool IsEmpty(StreamReader stream);
         bool HasData(StreamReader stream);
