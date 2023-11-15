@@ -5,15 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Marketo\**" />
-    <Compile Remove="Services\**" />
-    <EmbeddedResource Remove="Marketo\**" />
-    <EmbeddedResource Remove="Services\**" />
-    <None Remove="Marketo\**" />
-    <None Remove="Services\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CsvValidator" Version="1.0.4" />
   </ItemGroup>
 
