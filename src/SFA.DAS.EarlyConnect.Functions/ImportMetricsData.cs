@@ -22,7 +22,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         [FunctionName("ImportMetricsData")]
         public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log)
         {
-            if (fileName.Contains("Metrics Data Upload"))
+            if (fileName.Contains("Metrics Data"))
             {
                 log.LogInformation($"C# Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
@@ -33,7 +33,6 @@ namespace SFA.DAS.EarlyConnect.Functions
 
 
                     fileStream.Close();
-
 
                 }
                 catch (Exception ex)

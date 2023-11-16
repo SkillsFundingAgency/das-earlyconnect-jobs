@@ -72,7 +72,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Services
             ((string)singleResult.Region).Should().Be("North East");
             ((string)singleResult.Intended_uni_entry_year).Should().Be("2022");
             ((string)singleResult.Max_travel_distance).Should().Be("0_10_miles");
-            ((string)singleResult.willing_to_relocate_flag).Should().Be("1");
+            ((string)singleResult.Willing_to_relocate_flag).Should().Be("1");
             ((string)singleResult.Number_gcse_grade4).Should().Be("8");
             ((string)singleResult.Students).Should().Be("100");
             ((string)singleResult.Interested_in_transport_flag).Should().Be("1");

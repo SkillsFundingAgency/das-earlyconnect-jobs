@@ -62,7 +62,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                             Region = ExtractText(contactDictionary.TryGetValue("Region", out var regionValue) ? regionValue?.ToString() : string.Empty),
                             IntendedStartYear = ParseDecimal(contactDictionary, "Intended_uni_entry_year"),
                             MaxTravelInMiles = CalculateMiles(contactDictionary.TryGetValue("Max_travel_distance", out var maxTravelInMilesValue) ? maxTravelInMilesValue?.ToString()?.Trim() : "0"),
-                            WillingnessToRelocate = ParseBoolean(contactDictionary, "willing_to_relocate_flag"),
+                            WillingnessToRelocate = ParseBoolean(contactDictionary, "Willing_to_relocate_flag"),
                             NoOfGCSCs = ParseInteger(contactDictionary, "Number_gcse_grade4"),
                             NoOfStudents = ParseInteger(contactDictionary, "Students"),
                             LogId = 1,
@@ -90,7 +90,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
 
                     return response.StatusCode == HttpStatusCode.OK
                         ? new BulkImportStatus { Status = ImportStatus.Completed, ApiErrors = response.ErrorContent }
-                        : new BulkImportStatus { Status = ImportStatus.Error };
+                        : new BulkImportStatus { Status = ImportStatus.Error, ApiErrors = response.ErrorContent };
                 }
                 catch (Exception e)
                 {

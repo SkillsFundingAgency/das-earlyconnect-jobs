@@ -40,7 +40,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                 new MetricsDataBulkUploadHandler(loggerMock.Object, _outerApiClient.Object, csvServiceMock.Object);
 
             var csvData =
-                "Region,Intended_uni_entry_year,Max_travel_distance,willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag";
+                "Region,Intended_uni_entry_year,Max_travel_distance,Willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag";
 
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))
@@ -57,7 +57,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                             { "Region", "North" },
                             { "Intended_uni_entry_year", "2022" },
                             { "Max_travel_distance", "0_10_miles" },
-                            { "willing_to_relocate_flag", "Y" },
+                            { "Willing_to_relocate_flag", "Y" },
                             { "Number_gcse_grade4", "8" },
                             { "Students", "100" },
                             { "Interested_in_transport_flag", "1" }
@@ -82,7 +82,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
             var handler = new MetricsDataBulkUploadHandler(loggerMock.Object, _outerApiClient.Object, csvServiceMock.Object);
 
             var csvData =
-                "Region,Intended_uni_entry_year,Max_travel_distance,willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag";
+                "Region,Intended_uni_entry_year,Max_travel_distance,Willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag";
 
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))
@@ -99,7 +99,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                             { "Region", "North" },
                             { "Intended_uni_entry_year", "2022" },
                             { "Max_travel_distance", "0_10_miles" },
-                            { "willing_to_relocate_flag", "Y" },
+                            { "Willing_to_relocate_flag", "Y" },
                             { "Number_gcse_grade4", "8" },
                             { "Students", "100" },
                             { "Interested_in_transport_flag", "1" }

@@ -8,7 +8,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Helpers
         {
 
             var csv = new StringBuilder()
-                .AppendLine($"Region,Intended_uni_entry_year,Max_travel_distance,willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag");
+                .AppendLine($"Region,Intended_uni_entry_year,Max_travel_distance,Willing_to_relocate_flag,Number_gcse_grade4,Students,Interested_in_transport_flag");
 
             for (int i = 1; i < count + 1; i++)
             {
