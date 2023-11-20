@@ -33,8 +33,6 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.OuterApi
 
             AddHeaders(requestMessage);
 
-            //await AddAuthenticationHeader(requestMessage);
-
             var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
 
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
