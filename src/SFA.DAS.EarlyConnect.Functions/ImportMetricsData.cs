@@ -22,24 +22,18 @@ namespace SFA.DAS.EarlyConnect.Functions
         [FunctionName("ImportMetricsData")]
         public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log)
         {
-            if (fileName.Contains("Metrics Data"))
+            try
             {
-                log.LogInformation($"C# Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
-                try
-                {
+                var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream);
 
-                    var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream);
+                fileStream.Close();
 
-
-                    fileStream.Close();
-
-                }
-                catch (Exception ex)
-                {
-                    log.LogError($"Unable to import StudentData CSV: {ex}");
-                    throw;
-                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Unable to import StudentData CSV: {ex}");
+                throw;
             }
 
         }

@@ -43,19 +43,5 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
                  Times.Once
              );
         }
-
-        [Test]
-        public async Task Run_WithInvalidFileName_DoesNotCallHandleMethod()
-        {
-            var fileName = "InvalidFileName.csv";
-            var stream = new MemoryStream();
-
-            await _importMetricsData.Run(stream, fileName, _loggerMock.Object);
-
-            _metricsDataBulkUploadHandlerMock.Verify(
-                  x => x.Handle(It.IsAny<Stream>()),
-                  Times.Never
-              );
-        }
     }
 }

@@ -122,8 +122,45 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                 status.ValidationError = "Missing data - there is no data to process";
 
             }
+
+            if (HasMandatoryData(sr) == false)
+            {
+                status.ValidationError = "One or more required fields are missing in the CSV header";
+
+            }
+
+            if (status.ValidationError != null)
+            {
+                status.ImportFileIsValid = false;
+                return status;
+            }
+
             return status;
         }
+
+        public bool HasMandatoryData(StreamReader stream)
+        {
+            stream.DiscardBufferedData();
+            stream.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+
+            var headerLine = stream.ReadLine();
+
+            if (headerLine != null)
+            {
+
+                var headers = headerLine.Split(',');
+
+                return headers.Contains("Region") &&
+                       headers.Contains("Intended_uni_entry_year") &&
+                       headers.Contains("Max_travel_distance") &&
+                       headers.Contains("Willing_to_relocate_flag") &&
+                       headers.Contains("Number_gcse_grade4") &&
+                       headers.Contains("Students");
+            }
+
+            return false;
+        }
+
 
         decimal ParseDecimal(IDictionary<string, object> dict, string key) =>
             decimal.TryParse(dict.TryGetValue(key, out var value) ? value?.ToString()?.Trim() : "0", out var result) ? result : 0;

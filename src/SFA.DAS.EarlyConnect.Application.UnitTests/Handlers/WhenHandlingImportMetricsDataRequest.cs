@@ -64,6 +64,9 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                         }
                     });
 
+                csvServiceMock.Setup(cs => cs.IsEmpty(It.IsAny<StreamReader>())).Returns(false);
+                csvServiceMock.Setup(cs => cs.HasData(It.IsAny<StreamReader>())).Returns(true);
+
                 _outerApiClient.Setup(c => c.Post<object>(It.IsAny<CreateMetricsDataRequest>(), false))
                     .ReturnsAsync(new ApiResponse<object>(new object(), HttpStatusCode.OK, string.Empty));
 
@@ -105,6 +108,9 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                             { "Interested_in_transport_flag", "1" }
                         }
                     });
+
+                csvServiceMock.Setup(cs => cs.IsEmpty(It.IsAny<StreamReader>())).Returns(false);
+                csvServiceMock.Setup(cs => cs.HasData(It.IsAny<StreamReader>())).Returns(true);
 
                 _outerApiClient.Setup(c => c.Post<object>(It.IsAny<CreateMetricsDataRequest>(), false))
                                 .ReturnsAsync(new ApiResponse<object>(null, HttpStatusCode.InternalServerError, "Simulated API failure"));
