@@ -16,8 +16,13 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             _connectionString = connectionString;
         }
 
-        public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationBlobName, string destinationContainerName)
+        public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName)
         {
+
+            string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+
+            string destinationBlobName = $"{sourceBlobName}_Copy_{uniqueIdentifier}";
+
             var sourceBlobClient = new BlobClient(_connectionString, sourceContainerName, sourceBlobName);
             var destinationBlobClient = new BlobClient(_connectionString, destinationContainerName, destinationBlobName);
 
@@ -33,15 +38,12 @@ namespace SFA.DAS.EarlyConnect.Application.Services
                 _blobContainerClient = new BlobContainerClient(_connectionString, sourceContainerName);
                 return await _blobContainerClient.DeleteBlobAsync(sourceBlobName);
             }
-            else
-            {
-                throw new InvalidOperationException($"Blob copy operation from '{sourceBlobName}' to '{destinationBlobName}' was not successful");
-            }
+
+            throw new InvalidOperationException($"Blob copy operation from '{sourceBlobName}' to '{destinationBlobName}' was not successful");
         }
     }
     public interface IBlobService
     {
-        Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationBlobName,
-            string destinationContainerName);
+        Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName);
     }
 }

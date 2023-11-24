@@ -59,7 +59,7 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
         [Test]
         public async Task Run_SuccessCase_UpdatesLogForCompletedStatus()
         {
-            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(Mock.Of<Response>());
 
             _mockMetricsDataBulkUploadHandler
@@ -80,7 +80,7 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
         [Test]
         public async Task Run_FailedCase_UpdatesLogForErrorStatus()
         {
-            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(Mock.Of<Response>());
 
             _mockMetricsDataBulkUploadHandler

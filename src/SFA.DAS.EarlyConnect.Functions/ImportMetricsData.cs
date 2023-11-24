@@ -53,12 +53,12 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, fileName, _archivedCompletedContainer);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                     await UpdateLog(logId, ImportStatus.Completed);
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, fileName, _archivedFailedContainer);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                     await UpdateLog(logId, ImportStatus.Error, bulkImportStatus.Errors);
                 }
 
