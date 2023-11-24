@@ -1,12 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Models.BulkImport;
+using SFA.DAS.EarlyConnect.Models.CreateLog;
 using SFA.DAS.EarlyConnect.Models.UpdateLog;
 
 namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
@@ -33,11 +37,18 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
             _mockUpdateLogHandler = new Mock<IUpdateLogHandler>();
             _mockBlobService = new Mock<IBlobService>();
 
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(x => x["SourceContainer"]).Returns("source-container");
+            mockConfiguration.Setup(x => x["ArchivedCompletedContainer"]).Returns("archived-completed-container");
+            mockConfiguration.Setup(x => x["ArchivedFailedContainer"]).Returns("archived-failed-container");
+
+
             _importMetricsData = new ImportMetricsData(
                 _mockMetricsDataBulkUploadHandler.Object,
                 _mockCreateLogHandler.Object,
                 _mockUpdateLogHandler.Object,
-                _mockBlobService.Object);
+                _mockBlobService.Object,
+                mockConfiguration.Object);
 
             _fileName = "testFile.csv";
             _fileStream = new MemoryStream();
@@ -48,9 +59,15 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
         [Test]
         public async Task Run_SuccessCase_UpdatesLogForCompletedStatus()
         {
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Mock.Of<Response>());
+
             _mockMetricsDataBulkUploadHandler
                 .Setup(h => h.Handle(It.IsAny<Stream>()))
                 .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Completed });
+
+            _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
+                .ReturnsAsync(1);
 
             await _importMetricsData.Run(_fileStream, _fileName, _logger, _executionContext);
 
@@ -63,9 +80,15 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
         [Test]
         public async Task Run_FailedCase_UpdatesLogForErrorStatus()
         {
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Mock.Of<Response>());
+
             _mockMetricsDataBulkUploadHandler
                 .Setup(h => h.Handle(It.IsAny<Stream>()))
                 .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Error });
+
+            _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
+                .ReturnsAsync(1);
 
             await _importMetricsData.Run(_fileStream, _fileName, _logger, _executionContext);
 

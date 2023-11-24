@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Functions;
@@ -61,11 +60,9 @@ namespace SFA.DAS.EarlyConnect.Functions
             services.AddTransient<ICreateLogHandler, CreateLogHandler>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
             services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
-            services.AddTransient<ICsvService, CsvService>();
             services.AddSingleton<IConfiguration>(configuration);
-            services.AddTransient<IBlobService, BlobService>();
-            services.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
-                new BlobContainerClientWrapper(configuration.GetValue<string>("AzureWebJobsStorage")));
+            services.AddTransient<IBlobService, BlobService>(x =>
+                new BlobService(configuration.GetValue<string>("AzureWebJobsStorage")));
 
             var executioncontextoptions = services.BuildServiceProvider()
                 .GetService<IOptions<ExecutionContextOptions>>().Value;
