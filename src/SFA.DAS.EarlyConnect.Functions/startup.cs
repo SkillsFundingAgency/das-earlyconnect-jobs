@@ -82,7 +82,10 @@ namespace SFA.DAS.EarlyConnect.Functions
 
             });
 
-            services.AddApplicationInsightsTelemetry(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(options =>
+            {
+                options.ConnectionString = configuration["APPINSIGHTS_INSTRUMENTATIONKEY"];
+            });
         }
     }
 }

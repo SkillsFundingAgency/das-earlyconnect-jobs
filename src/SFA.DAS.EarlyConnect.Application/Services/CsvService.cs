@@ -18,7 +18,7 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             using (var csv = new CsvReader(personCsv, CultureInfo.InvariantCulture))
             {
                 var records = csv.GetRecords<dynamic>();
-                return records.ToList<dynamic>();
+                return await Task.Run(() => records.ToList<dynamic>());
             }
         }
 
