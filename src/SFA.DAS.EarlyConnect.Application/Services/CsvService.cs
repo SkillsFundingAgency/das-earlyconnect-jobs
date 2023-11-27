@@ -42,8 +42,6 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             stream.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
             stream.ReadLine();
 
-            //if there is data and not just headers, the second line should have data and shouldnt be whitespace
-
             var secondLine = stream.ReadLine();
 
             return String.IsNullOrWhiteSpace(secondLine) == false;

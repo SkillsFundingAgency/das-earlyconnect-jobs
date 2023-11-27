@@ -1,49 +1,27 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Azure;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs;
+using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 
 namespace SFA.DAS.EarlyConnect.Application.Services
 {
     public class BlobService : IBlobService
     {
-        private BlobContainerClient _blobContainerClient;
-        private readonly string _connectionString;
+        private IBlobContainerClientWrapper _blobContainerClientWrapper;
 
-        public BlobService(string connectionString)
+        public BlobService(IBlobContainerClientWrapper blobContainerClientWrapper)
         {
-            _connectionString = connectionString;
+            _blobContainerClientWrapper = blobContainerClientWrapper;
         }
 
         public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName)
         {
-
-            string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-
-            string destinationBlobName = $"{sourceBlobName}_Copy_{uniqueIdentifier}";
-
-            var sourceBlobClient = new BlobClient(_connectionString, sourceContainerName, sourceBlobName);
-            var destinationBlobClient = new BlobClient(_connectionString, destinationContainerName, destinationBlobName);
-
-            var sourceBlobUri = sourceBlobClient.Uri;
-            var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobUri);
-
-            await copyOperation.WaitForCompletionAsync();
-
-            var destinationBlobProperties = await destinationBlobClient.GetPropertiesAsync();
-
-            if (destinationBlobProperties.Value.CopyStatus == CopyStatus.Success)
-            {
-                _blobContainerClient = new BlobContainerClient(_connectionString, sourceContainerName);
-                return await _blobContainerClient.DeleteBlobAsync(sourceBlobName);
-            }
-
-            throw new InvalidOperationException($"Blob copy operation from '{sourceBlobName}' to '{destinationBlobName}' was not successful");
+            return await _blobContainerClientWrapper.CopyBlobAsync(sourceBlobName, sourceContainerName,
+                destinationContainerName);
         }
     }
     public interface IBlobService
     {
-        Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName);
+        Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName,
+            string destinationContainerName);
     }
 }
