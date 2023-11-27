@@ -60,6 +60,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
             services.AddTransient<ICreateLogHandler, CreateLogHandler>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+            services.AddTransient<ICsvService, CsvService>();
             services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IBlobService, BlobService>();
