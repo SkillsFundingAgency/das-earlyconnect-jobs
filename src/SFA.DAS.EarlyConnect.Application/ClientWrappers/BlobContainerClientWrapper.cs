@@ -18,7 +18,6 @@ namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
 
         public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName)
         {
-
             string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
 
             string destinationBlobName = $"{sourceBlobName}_Copy_{uniqueIdentifier}";
