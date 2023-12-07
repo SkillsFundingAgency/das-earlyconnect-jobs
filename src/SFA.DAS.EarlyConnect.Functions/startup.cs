@@ -14,6 +14,7 @@ using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
+using SFA.DAS.EarlyConnect.Functions.Configuration;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.EarlyConnect.Functions
@@ -55,6 +56,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         public void ConfigureServices(IServiceCollection services, IConfigurationRoot configuration)
         {
             services.Configure<OuterApiConfiguration>(configuration.GetSection("OuterApiConfiguration"));
+            services.Configure<FunctionConfiguration>(configuration.GetSection("FunctionConfiguration"));
 
             services.AddOptions();
 

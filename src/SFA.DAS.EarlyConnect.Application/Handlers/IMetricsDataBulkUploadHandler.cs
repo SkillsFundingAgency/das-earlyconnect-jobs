@@ -6,6 +6,6 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
 {
     public interface IMetricsDataBulkUploadHandler
     {
-        Task<BulkImportStatus> Handle(Stream fileStream);
+        Task<BulkImportStatus> Handle(Stream fileStream,int logId);
     }
 }

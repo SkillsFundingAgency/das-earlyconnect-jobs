@@ -34,7 +34,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
         {
             var loggerMock = new Mock<ILogger<MetricsDataBulkUploadHandler>>();
             var csvServiceMock = new Mock<ICsvService>();
-
+            int logId = 1;
 
             var handler =
                 new MetricsDataBulkUploadHandler(loggerMock.Object, _outerApiClient.Object, csvServiceMock.Object);
@@ -70,7 +70,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                 _outerApiClient.Setup(c => c.Post<object>(It.IsAny<CreateMetricsDataRequest>(), false))
                     .ReturnsAsync(new ApiResponse<object>(new object(), HttpStatusCode.OK, string.Empty));
 
-                var result = await handler.Handle(stream);
+                var result = await handler.Handle(stream, logId);
 
                 Assert.AreEqual(ImportStatus.Completed, result.Status);
             }
@@ -81,6 +81,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
         {
             var loggerMock = new Mock<ILogger<MetricsDataBulkUploadHandler>>();
             var csvServiceMock = new Mock<ICsvService>();
+            int logId = 1;
 
             var handler = new MetricsDataBulkUploadHandler(loggerMock.Object, _outerApiClient.Object, csvServiceMock.Object);
 
@@ -115,7 +116,7 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                 _outerApiClient.Setup(c => c.Post<object>(It.IsAny<CreateMetricsDataRequest>(), false))
                                 .ReturnsAsync(new ApiResponse<object>(null, HttpStatusCode.InternalServerError, "Simulated API failure"));
 
-                var result = await handler.Handle(stream);
+                var result = await handler.Handle(stream, logId);
 
                 Assert.AreEqual(ImportStatus.Error, result.Status);
             }

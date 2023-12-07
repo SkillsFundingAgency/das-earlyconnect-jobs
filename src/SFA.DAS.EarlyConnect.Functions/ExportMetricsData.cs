@@ -6,9 +6,10 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Functions.Extensions;
+using SFA.DAS.EarlyConnect.Functions.Configuration;
 
 namespace SFA.DAS.EarlyConnect.Functions
 {
@@ -17,20 +18,23 @@ namespace SFA.DAS.EarlyConnect.Functions
         private readonly IBlobService _blobService;
         private readonly IMetricsDataBulkExportHandler _metricsDataBulkDownloadHandler;
         private readonly string _exportContainer;
+        private readonly FunctionConfiguration _functionConfiguration;
 
         public ExportMetricsData(
             IMetricsDataBulkExportHandler metricsDataBulkDownloadHandler,
             IBlobService blobService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IOptions<FunctionConfiguration> config)
         {
             _metricsDataBulkDownloadHandler = metricsDataBulkDownloadHandler;
             _blobService = blobService;
             _exportContainer = configuration["ExportContainer"];
+            _functionConfiguration = config.Value;
         }
 
         [FunctionName("ExportMetricsData_Timer")]
         public async Task RunTimer(
-            [TimerTrigger(Schedules.MidnightDaily, RunOnStartup = true)] TimerInfo timerInfo,
+            [TimerTrigger("%FunctionConfiguration:ExportMetricsDataJobSchedule%")] TimerInfo timerInfo,
             ILogger log)
         {
             await Run(null, log);
@@ -47,7 +51,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         private async Task Run(HttpRequest req, ILogger log)
         {
-            string lepsCode = "E37000025,E37000019,E37000051";
+            string lepsCode = _functionConfiguration.ListOfRegions;
 
             try
             {

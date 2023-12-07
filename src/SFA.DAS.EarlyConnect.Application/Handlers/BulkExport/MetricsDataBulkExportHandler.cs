@@ -12,10 +12,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
 {
     public class MetricsDataBulkExportHandler : IMetricsDataBulkExportHandler
     {
-
         private readonly ILogger<MetricsDataBulkExportHandler> _logger;
         private readonly IOuterApiClient _outerApiClient;
-
 
         public MetricsDataBulkExportHandler(
             ILogger<MetricsDataBulkExportHandler> logger,
@@ -56,13 +54,13 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
                     {
                         new KeyValuePair<string, string>("Intended_uni_entry_year", item.IntendedStartYear.ToString()),
                         new KeyValuePair<string, string>("Region", item.Region),
-                        new KeyValuePair<string, string>("Max_travel_distance", item.MaxTravelInMiles.ToString()),
-                        new KeyValuePair<string, string>("Willing_to_relocate_flag", item.WillingnessToRelocate.ToString()),
+                        new KeyValuePair<string, string>("Max_travel_distance", $"{item.MaxTravelInMiles}_miles"),
+                        new KeyValuePair<string, string>("Willing_to_relocate_flag", item.WillingnessToRelocate ?  "1" : "0"),
                         new KeyValuePair<string, string>("Number_gcse_grade4", item.NoOfGCSCs.ToString()),
                     };
 
                 rowData.AddRange(item.InterestAreas.Select(interestArea =>
-                    new KeyValuePair<string, string>(interestArea.FlagCode, interestArea.FlagValue.ToString())));
+                    new KeyValuePair<string, string>(interestArea.FlagCode, interestArea.FlagValue ? "1" : "0")));
 
                 rowData.Add(new KeyValuePair<string, string>("Students", item.NoOfStudents.ToString()));
                 data.Add(rowData);

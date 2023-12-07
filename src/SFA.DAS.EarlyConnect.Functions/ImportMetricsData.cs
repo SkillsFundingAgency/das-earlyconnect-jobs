@@ -49,17 +49,18 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 logId = await CreateLog(ImportStatus.InProgress, fileStream, fileName, context);
 
-                var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream);
+                var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream, logId);
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                     await UpdateLog(logId, ImportStatus.Completed);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
+
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                     await UpdateLog(logId, ImportStatus.Error, bulkImportStatus.Errors);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                 }
 
                 log.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");

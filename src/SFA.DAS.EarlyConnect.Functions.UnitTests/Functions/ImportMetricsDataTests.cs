@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Azure;
 using Microsoft.Azure.WebJobs;
@@ -63,7 +62,7 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
                 .ReturnsAsync(Mock.Of<Response>());
 
             _mockMetricsDataBulkUploadHandler
-                .Setup(h => h.Handle(It.IsAny<Stream>()))
+                .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
                 .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Completed });
 
             _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
@@ -84,7 +83,7 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
                 .ReturnsAsync(Mock.Of<Response>());
 
             _mockMetricsDataBulkUploadHandler
-                .Setup(h => h.Handle(It.IsAny<Stream>()))
+                .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
                 .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Error });
 
             _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))

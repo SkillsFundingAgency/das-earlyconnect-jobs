@@ -7,11 +7,12 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
+using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Responses;
 
 namespace SFA.DAS.EarlyConnect.Infrastructure.UnitTests.OuterApi
 {
     [TestFixture]
-    public class WhenCallingPost
+    public class OuterApiClientTests
     {
         private OuterApiClient _outerApiClient;
         private Mock<IOptions<OuterApiConfiguration>> _configMock;
@@ -24,13 +25,16 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.UnitTests.OuterApi
         }
 
         [Test]
-        public async Task Post_ValidRequest_ReturnsApiResponse()
+        public async Task Get_ValidRequest_ReturnsApiResponse()
         {
-            var request = new Mock<IPostApiRequest>();
-            request.Setup(x => x.PostUrl).Returns("https://example.com/api");
-            request.Setup(x => x.Data).Returns(new { Property1 = "value1", Property2 = "value2" });
+            var request = new Mock<IGetApiRequest>();
+            request.Setup(x => x.GetUrl).Returns("https://example.com/api");
 
-            var expectedResponse = new ApiResponse<string>("response", HttpStatusCode.OK, string.Empty);
+            var expectedResponse = new ApiResponse<GetMetricsDataByLepsCodeResponse>(
+                new GetMetricsDataByLepsCodeResponse(),
+                HttpStatusCode.OK,
+                string.Empty
+            );
 
             var handlerMock = new Mock<HttpMessageHandler>();
             handlerMock
@@ -38,27 +42,31 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.UnitTests.OuterApi
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent("response")
+                    Content = new StringContent("{ \"property\": \"value\" }")
                 });
 
             var httpClient = new HttpClient(handlerMock.Object);
             _outerApiClient = new OuterApiClient(httpClient, _configMock.Object);
 
-            var response = await _outerApiClient.Post<string>(request.Object, false);
+            var response = await _outerApiClient.Get<GetMetricsDataByLepsCodeResponse>(request.Object);
 
 
             Assert.AreEqual(expectedResponse.StatusCode, response.StatusCode);
             Assert.AreEqual(expectedResponse.ErrorContent, response.ErrorContent);
+            Assert.NotNull(response.Body);
         }
 
         [Test]
-        public async Task Post_ErrorStatusCode_ReturnsErrorResponse()
+        public async Task Get_ErrorStatusCode_ReturnsErrorResponse()
         {
-            var request = new Mock<IPostApiRequest>();
-            request.Setup(x => x.PostUrl).Returns("https://example.com/api");
-            request.Setup(x => x.Data).Returns(new { Property1 = "value1", Property2 = "value2" });
+            var request = new Mock<IGetApiRequest>();
+            request.Setup(x => x.GetUrl).Returns("https://example.com/api");
 
-            var expectedErrorResponse = new ApiResponse<string>(null, HttpStatusCode.BadRequest, "error message");
+            var expectedResponse = new ApiResponse<GetMetricsDataByLepsCodeResponse>(
+                new GetMetricsDataByLepsCodeResponse(),
+                HttpStatusCode.BadRequest,
+                "error message"
+            );
 
             var handlerMock = new Mock<HttpMessageHandler>();
             handlerMock
@@ -72,10 +80,10 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.UnitTests.OuterApi
             var httpClient = new HttpClient(handlerMock.Object);
             _outerApiClient = new OuterApiClient(httpClient, _configMock.Object);
 
-            var response = await _outerApiClient.Post<string>(request.Object, false);
+            var response = await _outerApiClient.Get<string>(request.Object);
 
-            Assert.AreEqual(expectedErrorResponse.StatusCode, response.StatusCode);
-            Assert.AreEqual(expectedErrorResponse.ErrorContent, response.ErrorContent);
+            Assert.AreEqual(expectedResponse.StatusCode, response.StatusCode);
+            Assert.AreEqual(expectedResponse.ErrorContent, response.ErrorContent);
         }
     }
 }

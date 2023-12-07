@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Azure;
+using Azure.Storage.Blobs.Models;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
@@ -53,6 +55,35 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Services
             var response = await blobService.CopyBlobAsync(sourceBlobName, sourceContainerName, destinationContainerName);
 
             Assert.AreEqual(mockResponse.Object, response);
+        }
+
+        [Test]
+        public async Task UploadToBlobAsync_ShouldCallUploadToBlobAsyncOnBlobContainerClientWrapper()
+        {
+            var uploadData = new List<List<KeyValuePair<string, string>>>
+            {
+                new List<KeyValuePair<string, string>> { new("Key1", "Value1") },
+            };
+
+            var containerName = "Container";
+            var blobName = "Blob";
+
+            var responseMock = new Mock<Response<BlobContentInfo>>();
+
+            var blobContainerClientWrapperMock = new Mock<IBlobContainerClientWrapper>();
+            blobContainerClientWrapperMock
+                .Setup(x => x.UploadToBlob(uploadData, containerName, blobName))
+                .ReturnsAsync(responseMock.Object);
+
+            var blobService = new BlobService(blobContainerClientWrapperMock.Object);
+
+            var result = await blobService.UploadToBlob(uploadData, containerName, blobName);
+
+            Assert.NotNull(result);
+
+            blobContainerClientWrapperMock.Verify(
+                x => x.UploadToBlob(uploadData, containerName, blobName),
+                Times.Once);
         }
     }
 }
