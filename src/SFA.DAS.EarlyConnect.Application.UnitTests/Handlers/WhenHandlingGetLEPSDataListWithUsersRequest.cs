@@ -30,8 +30,6 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
         [Test]
         public async Task Handle_WithValidResponse_ReturnsBulkExportData()
         {
-            string lepsCode = "123";
-
             var lepsDataResult = new GetLEPSDataListWithUsersResponse
             {
                 LEPSData = new List<GetLEPSDataWithUsersResponse>
