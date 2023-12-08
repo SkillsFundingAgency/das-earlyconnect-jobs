@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,10 +7,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
+using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Functions.Configuration;
 
 namespace SFA.DAS.EarlyConnect.Functions
 {
@@ -17,19 +17,19 @@ namespace SFA.DAS.EarlyConnect.Functions
     {
         private readonly IBlobService _blobService;
         private readonly IMetricsDataBulkExportHandler _metricsDataBulkDownloadHandler;
+        private readonly IGetLEPSDataWithUsersHandler _getLEPSDataWithUsersHandler;
         private readonly string _exportContainer;
-        private readonly FunctionConfiguration _functionConfiguration;
 
         public ExportMetricsData(
             IMetricsDataBulkExportHandler metricsDataBulkDownloadHandler,
             IBlobService blobService,
             IConfiguration configuration,
-            IOptions<FunctionConfiguration> config)
+            IGetLEPSDataWithUsersHandler getLEPSDataWithUsersHandler)
         {
             _metricsDataBulkDownloadHandler = metricsDataBulkDownloadHandler;
             _blobService = blobService;
             _exportContainer = configuration["ExportContainer"];
-            _functionConfiguration = config.Value;
+            _getLEPSDataWithUsersHandler = getLEPSDataWithUsersHandler;
         }
 
         [FunctionName("ExportMetricsData_Timer")]
@@ -51,24 +51,34 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         private async Task Run(HttpRequest req, ILogger log)
         {
-            string lepsCode = _functionConfiguration.ListOfRegions;
-
             try
             {
-                foreach (var item in lepsCode.Split(','))
+                var lepsDataResult = await _getLEPSDataWithUsersHandler.Handle();
+
+                if (lepsDataResult?.LEPSData == null || !lepsDataResult.LEPSData.Any())
                 {
-                    log.LogInformation("Function triggered.");
+                    log.LogInformation("No LEPs data found");
+                    return;
+                }
 
-                    var bulkExportStatus = await _metricsDataBulkDownloadHandler.Handle(item);
+                foreach (var lepsItem in lepsDataResult.LEPSData)
+                {
+                    log.LogInformation($"Function triggered for metrics data {lepsItem.LepCode}");
 
-                    if (bulkExportStatus.ExportData != null)
+                    var metricsExportData = await _metricsDataBulkDownloadHandler.Handle(lepsItem.LepCode);
+
+                    if (metricsExportData.ExportData != null)
                     {
-                        await _blobService.UploadToBlob(bulkExportStatus.ExportData, _exportContainer, bulkExportStatus.FileName);
+                        string blobName = $"{lepsItem.LepCode}_{metricsExportData.LogId}_{lepsItem.Id}";
+
+                        await _blobService.UploadToBlob(metricsExportData.ExportData, _exportContainer, blobName);
                     }
                     else
                     {
-                        log.LogInformation($"No data found for the LEPS code {item}");
+                        log.LogInformation($"No data found for LEPs code {lepsItem.LepCode}");
                     }
+
+                    log.LogInformation($"Function execution completed for metrics data {lepsItem.LepCode}");
                 }
             }
             catch (Exception ex)
@@ -77,5 +87,6 @@ namespace SFA.DAS.EarlyConnect.Functions
                 throw;
             }
         }
+
     }
 }

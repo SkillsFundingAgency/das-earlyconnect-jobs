@@ -5,7 +5,7 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Responses
 {
     public class GetMetricsDataByLepsCodeResponse
     {
-        public ICollection<ApprenticeshipMetricsData>? ListOfMetricsData { get; set; }
+        public ICollection<ApprenticeshipMetricsData> ListOfMetricsData { get; set; }
     }
     public class ApprenticeshipMetricsData
     {

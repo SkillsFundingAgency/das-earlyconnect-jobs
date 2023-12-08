@@ -38,6 +38,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
                 throw new InvalidOperationException("No metrics data available for export");
             }
 
+            int sequenceNumber = 1;
+
             var data = new List<List<KeyValuePair<string, string>>>();
 
             foreach (var item in response.Body.ListOfMetricsData)
@@ -52,9 +54,10 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
 
                 var rowData = new List<KeyValuePair<string, string>>
                     {
+                        new KeyValuePair<string, string>("S_no", sequenceNumber.ToString()),
                         new KeyValuePair<string, string>("Intended_uni_entry_year", item.IntendedStartYear.ToString()),
                         new KeyValuePair<string, string>("Region", item.Region),
-                        new KeyValuePair<string, string>("Max_travel_distance", $"{item.MaxTravelInMiles}_miles"),
+                        new KeyValuePair<string, string>("Max_travel_distance", item.MaxTravelInMiles.ToString()),
                         new KeyValuePair<string, string>("Willing_to_relocate_flag", item.WillingnessToRelocate ?  "1" : "0"),
                         new KeyValuePair<string, string>("Number_gcse_grade4", item.NoOfGCSCs.ToString()),
                     };
@@ -64,6 +67,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
 
                 rowData.Add(new KeyValuePair<string, string>("Students", item.NoOfStudents.ToString()));
                 data.Add(rowData);
+
+                sequenceNumber++;
             }
 
             _logger.LogInformation("Data mapping completed for export");
@@ -71,7 +76,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
             return new BulkExportData
             {
                 ExportData = data,
-                FileName = $"{lepsCode}_{logId}"
+                LogId = logId
             };
         }
     }

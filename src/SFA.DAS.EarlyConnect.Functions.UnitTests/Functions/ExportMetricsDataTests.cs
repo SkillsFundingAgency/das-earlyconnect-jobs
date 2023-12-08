@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
+using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Functions.Configuration;
+using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Responses;
 using SFA.DAS.EarlyConnect.Models.BulkExport;
 
 namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
@@ -20,29 +20,24 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
     public class ExportMetricsDataTests
     {
         private Mock<IMetricsDataBulkExportHandler> mockMetricsDataBulkDownloadHandler;
+        private Mock<IGetLEPSDataWithUsersHandler> mockGetLEPSDataWithUsersHandler;
         private Mock<IBlobService> mockBlobService;
         private Mock<IConfiguration> mockConfiguration;
         private ExportMetricsData exportMetricsData;
-        private Mock<IOptions<FunctionConfiguration>> _configMock;
 
         [SetUp]
         public void Setup()
         {
             mockMetricsDataBulkDownloadHandler = new Mock<IMetricsDataBulkExportHandler>();
+            mockGetLEPSDataWithUsersHandler = new Mock<IGetLEPSDataWithUsersHandler>();
             mockBlobService = new Mock<IBlobService>();
             mockConfiguration = new Mock<IConfiguration>();
-            _configMock = new Mock<IOptions<FunctionConfiguration>>();
-
-            _configMock.Setup(x => x.Value).Returns(new FunctionConfiguration
-            {
-                ListOfRegions = "E37000025,E37000019,E37000051"
-            });
 
             exportMetricsData = new ExportMetricsData(
                 mockMetricsDataBulkDownloadHandler.Object,
                 mockBlobService.Object,
                 mockConfiguration.Object,
-                _configMock.Object);
+                mockGetLEPSDataWithUsersHandler.Object);
         }
 
         [Test]
@@ -51,9 +46,22 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
             var responseMock = new Mock<Response<BlobContentInfo>>();
             mockConfiguration.Setup(config => config["ExportContainer"]).Returns("ExportContainer");
 
+
+            var lepsDataResult = new GetLEPSDataListWithUsersResponse
+            {
+                LEPSData = new List<GetLEPSDataWithUsersResponse>
+                {
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 1 },
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 2 },
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 3 }
+                }
+            };
+
+            mockGetLEPSDataWithUsersHandler.Setup(handler => handler.Handle()).ReturnsAsync(lepsDataResult);
+
             mockMetricsDataBulkDownloadHandler
                  .Setup(handler => handler.Handle(It.IsAny<string>()))
-                     .ReturnsAsync(new BulkExportData { ExportData = new List<List<KeyValuePair<string, string>>>(), FileName = "FileName" });
+                     .ReturnsAsync(new BulkExportData { ExportData = new List<List<KeyValuePair<string, string>>>(), LogId = 1 });
 
             mockBlobService
                  .Setup(blobService => blobService.UploadToBlob(It.IsAny<List<List<KeyValuePair<string, string>>>>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -74,9 +82,21 @@ namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
 
             mockConfiguration.Setup(config => config["ExportContainer"]).Returns("ExportContainer");
 
+            var lepsDataResult = new GetLEPSDataListWithUsersResponse
+            {
+                LEPSData = new List<GetLEPSDataWithUsersResponse>
+                {
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 1 },
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 2 },
+                    new GetLEPSDataWithUsersResponse { LepCode = "TestLepCode", Id = 3 }
+                }
+            };
+
+            mockGetLEPSDataWithUsersHandler.Setup(handler => handler.Handle()).ReturnsAsync(lepsDataResult);
+
             mockMetricsDataBulkDownloadHandler
               .Setup(handler => handler.Handle(It.IsAny<string>()))
-                  .ReturnsAsync(new BulkExportData { ExportData = new List<List<KeyValuePair<string, string>>>(), FileName = "FileName" });
+                  .ReturnsAsync(new BulkExportData { ExportData = new List<List<KeyValuePair<string, string>>>(), LogId = 1 });
 
             mockBlobService
                   .Setup(blobService => blobService.UploadToBlob(It.IsAny<List<List<KeyValuePair<string, string>>>>(), It.IsAny<string>(), It.IsAny<string>()))

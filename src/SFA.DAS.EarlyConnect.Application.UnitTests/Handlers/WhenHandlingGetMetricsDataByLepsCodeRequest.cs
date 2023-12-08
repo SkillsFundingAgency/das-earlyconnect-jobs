@@ -65,8 +65,8 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
 
             Assert.NotNull(result);
             Assert.IsNotNull(result.ExportData);
-            Assert.AreEqual($"{lepsCode}_{getMetricsDataByLepsCodeResponse.ListOfMetricsData.ToList()[0].LogId}",
-                result.FileName);
+            Assert.AreEqual(getMetricsDataByLepsCodeResponse.ListOfMetricsData.ToList()[0].LogId,
+                result.LogId);
 
             Assert.IsNotEmpty(result.ExportData);
         }
