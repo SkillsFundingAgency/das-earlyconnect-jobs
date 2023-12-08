@@ -69,13 +69,14 @@ namespace SFA.DAS.EarlyConnect.Functions
             }
             catch (Exception ex)
             {
+                var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
+
                 log.LogError($"Unable to import Metric Data CSV: {ex}");
 
-                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"Error posting Metrics data. \nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"Error posting Metrics data. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
 
                 throw;
             }
-
         }
 
         private async Task<int> CreateLog(ImportStatus status, Stream fileStream, string fileName, ExecutionContext context)
