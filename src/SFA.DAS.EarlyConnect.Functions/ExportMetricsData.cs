@@ -34,7 +34,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         [FunctionName("ExportMetricsData_Timer")]
         public async Task RunTimer(
-            [TimerTrigger("%FunctionConfiguration:ExportMetricsDataJobSchedule%")] TimerInfo timerInfo,
+            [TimerTrigger("%Functions:ExportMetricsDataJobSchedule%")] TimerInfo timerInfo,
             ILogger log)
         {
             await Run(null, log);
