@@ -35,7 +35,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkExport
             if (response.Body?.ListOfMetricsData == null || !response.Body.ListOfMetricsData.Any())
             {
                 _logger.LogInformation("No metrics data to export");
-                throw new InvalidOperationException("No metrics data available for export");
+                return null;
             }
 
             int sequenceNumber = 1;

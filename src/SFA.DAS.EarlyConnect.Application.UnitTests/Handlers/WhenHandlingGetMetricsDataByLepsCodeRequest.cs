@@ -72,11 +72,11 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
         }
 
         [Test]
-        public void Handle_WithEmptyResponse_ThrowsInvalidOperationException()
+        public async Task Handle_WithEmptyResponse_Returned_NullResponse()
         {
             string lepsCode = "123";
             var getMetricsDataByLepsCodeResponse = new GetMetricsDataByLepsCodeResponse
-            { ListOfMetricsData = new List<ApprenticeshipMetricsData>() };
+                { ListOfMetricsData = new List<ApprenticeshipMetricsData>() };
 
             _outerApiClientMock
                 .Setup(client =>
@@ -84,12 +84,14 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                 .ReturnsAsync(new ApiResponse<GetMetricsDataByLepsCodeResponse>(getMetricsDataByLepsCodeResponse,
                     HttpStatusCode.OK, ""));
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _metricsDataBulkExportHandler.Handle(lepsCode));
+            var result = await _metricsDataBulkExportHandler.Handle(lepsCode);
+
+            Assert.IsNull(result);
         }
 
+
         [Test]
-        public void Handle_WithNullResponse_ThrowsInvalidOperationException()
+        public async Task Handle_WithNullResponse_Returned_NullResponse()
         {
             string lepsCode = "123";
 
@@ -98,8 +100,9 @@ namespace SFA.DAS.EarlyConnect.Application.UnitTests.Handlers
                     client.Get<GetMetricsDataByLepsCodeResponse>(It.IsAny<GetMetricsDataByLepsCodeRequest>()))
                 .ReturnsAsync(new ApiResponse<GetMetricsDataByLepsCodeResponse>(null, HttpStatusCode.OK, ""));
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _metricsDataBulkExportHandler.Handle(lepsCode));
+            var result = await _metricsDataBulkExportHandler.Handle(lepsCode);
+
+            Assert.IsNull(result);
         }
     }
 }

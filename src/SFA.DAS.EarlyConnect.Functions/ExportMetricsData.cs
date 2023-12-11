@@ -67,18 +67,18 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                     var metricsExportData = await _metricsDataBulkDownloadHandler.Handle(lepsItem.LepCode);
 
-                    if (metricsExportData.ExportData != null)
+                    if (metricsExportData?.ExportData != null)
                     {
                         string blobName = $"{lepsItem.LepCode}_{metricsExportData.LogId}_{lepsItem.Id}";
 
                         await _blobService.UploadToBlob(metricsExportData.ExportData, _exportContainer, blobName);
+
+                        log.LogInformation($"Function execution completed for metrics data {lepsItem.LepCode}");
                     }
                     else
                     {
                         log.LogInformation($"No data found for LEPs code {lepsItem.LepCode}");
                     }
-
-                    log.LogInformation($"Function execution completed for metrics data {lepsItem.LepCode}");
                 }
             }
             catch (Exception ex)
