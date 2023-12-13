@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Models.BulkImport;
 using SFA.DAS.EarlyConnect.Models.CreateLog;
 using SFA.DAS.EarlyConnect.Models.UpdateLog;
-
 
 namespace SFA.DAS.EarlyConnect.Functions
 {
@@ -18,25 +18,33 @@ namespace SFA.DAS.EarlyConnect.Functions
         private readonly IMetricsDataBulkUploadHandler _metricsDataBulkUploadHandler;
         private readonly ICreateLogHandler _createLogHandler;
         private readonly IUpdateLogHandler _updateLogHandler;
-        private readonly string _container = "import-metricsdata";
+        private readonly string _sourceContainer;
+        private readonly string _archivedCompletedContainer;
+        private readonly string _archivedFailedContainer;
 
         public ImportMetricsData(IMetricsDataBulkUploadHandler metricsDataBulkUploadHandler,
             ICreateLogHandler createLogHandler,
             IUpdateLogHandler updateLogHandler,
-            IBlobService blobService)
+            IBlobService blobService,
+            IConfiguration configuration)
         {
             _createLogHandler = createLogHandler;
             _updateLogHandler = updateLogHandler;
             _metricsDataBulkUploadHandler = metricsDataBulkUploadHandler;
             _blobService = blobService;
+
+            _sourceContainer = configuration["SourceContainer"];
+            _archivedCompletedContainer = configuration["ArchivedCompletedContainer"];
+            _archivedFailedContainer = configuration["ArchivedFailedContainer"];
         }
         [FunctionName("ImportMetricsData")]
-        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
+        public async Task Run([BlobTrigger("%SourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
         {
             int logId = 0;
 
             try
             {
+
                 log.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 logId = await CreateLog(ImportStatus.InProgress, fileStream, fileName, context);
@@ -45,24 +53,30 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                     await UpdateLog(logId, ImportStatus.Completed);
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                     await UpdateLog(logId, ImportStatus.Error, bulkImportStatus.Errors);
                 }
 
-                fileStream.Close();
+                log.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
+                fileStream.Close();
             }
             catch (Exception ex)
             {
                 log.LogError($"Unable to import Metric Data CSV: {ex}");
-                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"{ex.Message} - {ex.StackTrace}");
+
+                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"Error posting Metrics data. \nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
+
                 throw;
             }
 
         }
+
         private async Task<int> CreateLog(ImportStatus status, Stream fileStream, string fileName, ExecutionContext context)
         {
             string fileContent;

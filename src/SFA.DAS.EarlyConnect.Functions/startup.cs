@@ -9,10 +9,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Functions;
+using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.EarlyConnect.Functions
@@ -60,8 +60,8 @@ namespace SFA.DAS.EarlyConnect.Functions
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
             services.AddTransient<ICreateLogHandler, CreateLogHandler>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
-            services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
             services.AddTransient<ICsvService, CsvService>();
+            services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
             services.AddSingleton<IConfiguration>(configuration);
             services.AddTransient<IBlobService, BlobService>();
             services.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
@@ -82,7 +82,10 @@ namespace SFA.DAS.EarlyConnect.Functions
 
             });
 
-            services.AddApplicationInsightsTelemetry(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(options =>
+            {
+                options.ConnectionString = configuration["APPINSIGHTS_INSTRUMENTATIONKEY"];
+            });
         }
     }
 }

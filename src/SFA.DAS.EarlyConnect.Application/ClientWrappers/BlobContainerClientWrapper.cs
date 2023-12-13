@@ -1,49 +1,49 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
 {
     public class BlobContainerClientWrapper : IBlobContainerClientWrapper
     {
         private BlobContainerClient _blobContainerClient;
-        private string _connectionString;
+        private readonly string _connectionString;
 
         public BlobContainerClientWrapper(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        //TODO
-
-        //public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationBlobName, string destinationContainerName)
-        //{
-        //    var sourceBlobClient = new BlobClient(_connectionString, sourceContainerName, sourceBlobName);
-        //    var destinationBlobClient = new BlobClient(_connectionString, destinationContainerName, destinationBlobName);
-
-        //    var sourceBlobUri = sourceBlobClient.Uri;
-        //    var destinationBlobUri = destinationBlobClient.Uri;
-
-        //    await destinationBlobClient.StartCopyFromUriAsync(sourceBlobUri);
-
-        //    // Optionally, you can delete the source blob after copying it to the destination container
-        //    await sourceBlobClient.DeleteIfExistsAsync();
-
-        //    // Return the copy operation response
-        //    // Modify the return type according to your application's needs
-        //    return new Response();
-        //}
-
-        public Task<Response> DeleteBlobAsync(string blobName, string containerName)
+        public async Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName)
         {
-            _blobContainerClient = new BlobContainerClient(_connectionString, containerName);
+            string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
 
-            return _blobContainerClient.DeleteBlobAsync(blobName);
+            string destinationBlobName = $"{sourceBlobName}_Copy_{uniqueIdentifier}";
+
+            var sourceBlobClient = new BlobClient(_connectionString, sourceContainerName, sourceBlobName);
+            var destinationBlobClient = new BlobClient(_connectionString, destinationContainerName, destinationBlobName);
+
+            var sourceBlobUri = sourceBlobClient.Uri;
+            var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobUri);
+
+            await copyOperation.WaitForCompletionAsync();
+
+            var destinationBlobProperties = await destinationBlobClient.GetPropertiesAsync();
+
+            if (destinationBlobProperties.Value.CopyStatus == CopyStatus.Success)
+            {
+                _blobContainerClient = new BlobContainerClient(_connectionString, sourceContainerName);
+                return await _blobContainerClient.DeleteBlobAsync(sourceBlobName);
+            }
+
+            throw new InvalidOperationException($"Blob copy operation from '{sourceBlobName}' to '{destinationBlobName}' was not successful");
         }
     }
 
     public interface IBlobContainerClientWrapper
     {
-        Task<Response> DeleteBlobAsync(string blobName, string containerName);
+        Task<Response> CopyBlobAsync(string sourceBlobName, string sourceContainerName, string destinationContainerName);
     }
 }
