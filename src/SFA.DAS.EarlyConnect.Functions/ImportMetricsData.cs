@@ -49,17 +49,18 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 logId = await CreateLog(ImportStatus.InProgress, fileStream, fileName, context);
 
-                var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream);
+                var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream, logId);
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                     await UpdateLog(logId, ImportStatus.Completed);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
+
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
-                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                     await UpdateLog(logId, ImportStatus.Error, bulkImportStatus.Errors);
+                    await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                 }
 
                 log.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
@@ -68,13 +69,14 @@ namespace SFA.DAS.EarlyConnect.Functions
             }
             catch (Exception ex)
             {
+                var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
+
                 log.LogError($"Unable to import Metric Data CSV: {ex}");
 
-                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"Error posting Metrics data. \nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                if (logId > 0) await UpdateLog(logId, ImportStatus.Error, $"Error posting Metrics data. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
 
                 throw;
             }
-
         }
 
         private async Task<int> CreateLog(ImportStatus status, Stream fileStream, string fileName, ExecutionContext context)

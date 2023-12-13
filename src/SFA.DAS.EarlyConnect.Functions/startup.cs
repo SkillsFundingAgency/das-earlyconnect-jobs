@@ -13,6 +13,8 @@ using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
+using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
+using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace SFA.DAS.EarlyConnect.Functions
@@ -60,6 +62,8 @@ namespace SFA.DAS.EarlyConnect.Functions
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
             services.AddTransient<ICreateLogHandler, CreateLogHandler>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+            services.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
+            services.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
             services.AddTransient<ICsvService, CsvService>();
             services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
             services.AddSingleton<IConfiguration>(configuration);

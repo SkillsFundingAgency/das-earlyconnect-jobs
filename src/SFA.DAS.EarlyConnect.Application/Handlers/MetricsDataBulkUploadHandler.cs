@@ -32,7 +32,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
             _outerApiClient = outerApiClient;
         }
 
-        public async Task<BulkImportStatus> Handle(Stream fileStream)
+        public async Task<BulkImportStatus> Handle(Stream fileStream,int logId)
         {
             _logger.LogInformation("about to handle metrics data import");
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                             WillingnessToRelocate = ParseBoolean(contactDictionary, "Willing_to_relocate_flag"),
                             NoOfGCSCs = ParseInteger(contactDictionary, "Number_gcse_grade4"),
                             NoOfStudents = ParseInteger(contactDictionary, "Students"),
-                            LogId = 1,
+                            LogId = logId,
                             MetricFlags = new List<string>()
                         };
 
