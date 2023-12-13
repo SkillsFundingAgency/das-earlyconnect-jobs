@@ -9,6 +9,6 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Functions\SFA.DAS.EarlyConnect.Functions.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EarlyConnect.Functions\SFA.DAS.EarlyConnect.Jobs.csproj" />
   </ItemGroup>
 </Project>
