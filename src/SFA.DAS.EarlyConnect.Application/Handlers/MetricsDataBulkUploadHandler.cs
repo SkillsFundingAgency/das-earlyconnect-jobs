@@ -40,11 +40,10 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
             {
                 var fileStatus = ValidateImportStream(sr);
 
-                if (!fileStatus.ImportFileIsValid)
+                if (fileStatus.Status == ImportStatus.Error)
                 {
                     return fileStatus;
                 }
-
 
                 try
                 {
@@ -89,8 +88,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                     var response = await _outerApiClient.Post<object>(new CreateMetricsDataRequest(metricsDataList), false);
 
                     return response.StatusCode == HttpStatusCode.OK
-                        ? new BulkImportStatus { Status = ImportStatus.Completed, ApiErrors = response.ErrorContent }
-                        : new BulkImportStatus { Status = ImportStatus.Error, ApiErrors = response.ErrorContent };
+                        ? new BulkImportStatus { Status = ImportStatus.Completed, Errors = response.ErrorContent }
+                        : new BulkImportStatus { Status = ImportStatus.Error, Errors = response.ErrorContent };
                 }
                 catch (Exception e)
                 {
@@ -99,7 +98,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                     var bulkImportStatus = new BulkImportStatus
                     {
                         Status = ImportStatus.Error,
-                        ValidationError = "Unable to parse CSV file, the format of the file is invalid"
+                        Errors = "Unable to parse CSV file, the format of the file is invalid"
                     };
 
                     return bulkImportStatus;
@@ -109,33 +108,29 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
 
         private BulkImportStatus ValidateImportStream(StreamReader sr)
         {
-
-            var status = new BulkImportStatus();
+            var importStatus = new BulkImportStatus();
 
             if (_csvService.IsEmpty(sr))
             {
-                status.ValidationError = "No headers - File is empty so cannot be processed";
+                importStatus.Errors = "No headers - File is empty so cannot be processed";
             }
 
-            if (_csvService.HasData(sr) == false)
+            else if (_csvService.HasData(sr) == false)
             {
-                status.ValidationError = "Missing data - there is no data to process";
-
+                importStatus.Errors = "Missing data - there is no data to process";
             }
 
-            if (HasMandatoryData(sr) == false)
+            else if (HasMandatoryData(sr) == false)
             {
-                status.ValidationError = "One or more required fields are missing in the CSV header";
-
+                importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
 
-            if (status.ValidationError != null)
+            if (importStatus.Errors != null)
             {
-                status.ImportFileIsValid = false;
-                return status;
+                importStatus.Status = ImportStatus.Error;
             }
 
-            return status;
+            return importStatus;
         }
 
         public bool HasMandatoryData(StreamReader stream)
