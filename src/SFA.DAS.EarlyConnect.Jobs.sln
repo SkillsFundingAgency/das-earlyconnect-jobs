@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configurat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Application.UnitTests", "SFA.DAS.EarlyConnect.Application.UnitTests\SFA.DAS.EarlyConnect.Application.UnitTests.csproj", "{69E8C13C-9EE3-4BE5-BC55-48152D4B817C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Jobs", "SFA.DAS.EarlyConnect.Functions\SFA.DAS.EarlyConnect.Jobs.csproj", "{2010D8A2-A525-4931-A44F-E66F7BA0895C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Jobs", "SFA.DAS.EarlyConnect.Jobs\SFA.DAS.EarlyConnect.Jobs.csproj", "{2010D8A2-A525-4931-A44F-E66F7BA0895C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Jobs.UnitTests", "SFA.DAS.EarlyConnect.Functions.UnitTests\SFA.DAS.EarlyConnect.Jobs.UnitTests.csproj", "{E815ED79-C27B-49DD-97FF-0BFEF8F42495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Jobs.UnitTests", "SFA.DAS.EarlyConnect.Jobs.UnitTests\SFA.DAS.EarlyConnect.Jobs.UnitTests.csproj", "{E815ED79-C27B-49DD-97FF-0BFEF8F42495}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EarlyConnect.Infrastructure.UnitTests", "SFA.DAS.EarlyConnect.Infrastructure.UnitTests\SFA.DAS.EarlyConnect.Infrastructure.UnitTests.csproj", "{EFE6A3E4-259F-4949-A97A-976FC2C3FB22}"
 EndProject
