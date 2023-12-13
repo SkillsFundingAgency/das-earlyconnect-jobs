@@ -26,7 +26,7 @@ namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
         {
             string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
 
-            string destinationBlobName = $"{sourceBlobName}_{uniqueIdentifier}";
+            string destinationBlobName = $"{sourceBlobName}_{uniqueIdentifier}.csv";
 
             var sourceBlobClient = new BlobClient(_connectionString, sourceContainerName, sourceBlobName);
             var destinationBlobClient = new BlobClient(_connectionString, destinationContainerName, destinationBlobName);
@@ -81,7 +81,7 @@ namespace SFA.DAS.EarlyConnect.Application.ClientWrappers
 
                 string uniqueIdentifier = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
 
-                string destinationBlobName = $"{blobName}_{uniqueIdentifier}";
+                string destinationBlobName = $"{blobName}_{uniqueIdentifier}.csv";
 
                 var blobServiceClient = new BlobServiceClient(_connectionString);
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);

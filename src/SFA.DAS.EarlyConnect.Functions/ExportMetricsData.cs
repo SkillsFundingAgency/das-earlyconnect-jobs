@@ -42,7 +42,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         [FunctionName("ExportMetricsData_Http")]
         public async Task<IActionResult> RunHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             await Run(req, log);
