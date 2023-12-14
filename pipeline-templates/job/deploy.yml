@@ -1,9 +1,10 @@
-parameters:  
-  Environment:
+parameters:
   ServiceConnection:
+  SolutionBaseName:
+  Environment:
 
 jobs:
-- deployment: DeployWebApp
+- deployment: DeployFunctionApp
   pool:
     name: DAS - Continuous Deployment Agents
   environment: ${{ parameters.Environment }}
@@ -23,8 +24,8 @@ jobs:
             SubscriptionId: $(SubscriptionId)
             Location: $(ResourceGroupLocation)
             Environment: ${{ parameters.Environment }}
-            TemplatePath: $(Pipeline.Workspace)/EarlyConnectFunctions/azure/template.json
-            ParametersPath: $(Pipeline.Workspace)/EarlyConnectFunctions/azure/template.parameters.json
+            TemplatePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/azure/template.json
+            ParametersPath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/azure/template.parameters.json
             IsMultiRepoCheckout: true
             TemplateSecrets:
               LoggingRedisConnectionString: $(LoggingRedisConnectionString)
@@ -36,7 +37,7 @@ jobs:
             ApimResourceGroup: $(SharedApimResourceGroup)
             ApimName: $(SharedApimName)
             SubscriptionId: $(FunctionAppName)
-            PipelineVariableName: EarlyConnectFunctionsApimSubscriptionKey
+            PipelineVariableName: EarlyConnectApimSubscriptionKey
             IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
           parameters:
@@ -49,10 +50,9 @@ jobs:
             TableName: Configuration
             ConfigurationSecrets:
               NServiceBusLicense: $(NServiceBusLicense)
-              DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
-              EarlyConnectFunctionsApimSubscriptionKey: $(EarlyConnectFunctionsApimSubscriptionKey)
+              EarlyConnectApimSubscriptionKey: $(EarlyConnectApimSubscriptionKey)
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/EarlyConnectFunctions/SFA.DAS.EarlyConnect.Jobs.zip
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.zip

@@ -4,8 +4,4 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CsvValidator" Version="1.0.4" />
-  </ItemGroup>
-
 </Project>
