@@ -40,7 +40,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
             configBuilder.AddAzureTableStorage(options =>
             {
-                options.ConfigurationKeys = configuration["ConfigName"].Split(",");
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
                 options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
                 options.EnvironmentName = configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
