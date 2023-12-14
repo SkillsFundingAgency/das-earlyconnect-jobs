@@ -86,6 +86,7 @@
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "storageAccountName": "[concat('das',toLower(parameters('resourceEnvironmentName')),parameters('serviceName'),'str')]",
+        "storageContainerNames": [ "import-metricsdata", "archived-completed-metricsdata", "archived-error-metricsdata", "export-metricsdata" ],
         "configNames": "SFA.DAS.EarlyConnect.Jobs"
     },
     "resources": [
@@ -319,11 +320,10 @@
                 }
             }
         },
-        {
+        {   "apiVersion": "2021-04-01",
             "name": "[concat(variables('storageAccountName'), '-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
-            "apiVersion": "2020-10-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -341,6 +341,34 @@
             },
             "dependsOn": [
                 "[variables('resourceGroupName')]"
+            ]
+        },
+        {
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('storageAccountName'), '-', variables('storageContainerNames')[copyIndex()], '-', parameters('utcValue'))]",
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'storage-container.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageAccountName": {
+                        "value": "[variables('storageAccountName')]"
+                    },
+                    "containerName": {
+                        "value": "[variables('storageContainerNames')[copyIndex()]]"
+                    }
+                }
+            },
+            "copy": {
+                "count": "[length(variables('storageContainerNames'))]",
+                "name": "storageContainerCopy"
+            },
+            "dependsOn": [
+                "[concat(variables('storageAccountName'), '-', parameters('utcValue'))]"
             ]
         }
     ],
