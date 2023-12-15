@@ -18,7 +18,7 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             using (var csv = new CsvReader(personCsv, CultureInfo.InvariantCulture))
             {
                 var records = csv.GetRecords<dynamic>();
-                return records.ToList<dynamic>();
+                return await Task.Run(() => records.ToList<dynamic>());
             }
         }
 
@@ -41,8 +41,6 @@ namespace SFA.DAS.EarlyConnect.Application.Services
             stream.DiscardBufferedData();
             stream.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
             stream.ReadLine();
-
-            //if there is data and not just headers, the second line should have data and shouldnt be whitespace
 
             var secondLine = stream.ReadLine();
 

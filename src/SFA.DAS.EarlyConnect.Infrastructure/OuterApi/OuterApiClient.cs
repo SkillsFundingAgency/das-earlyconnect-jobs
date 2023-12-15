@@ -23,6 +23,42 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.OuterApi
             _httpClient.BaseAddress = new Uri(_config.BaseUrl);
         }
 
+        public async Task<ApiResponse<TResponse>> Get<TResponse>(IGetApiRequest request)
+        {
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
+
+            AddHeaders(httpRequestMessage);
+
+            var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            var errorContent = "";
+            var responseBody = (TResponse)default;
+
+            if (IsNot200RangeResponseCode(response.StatusCode))
+            {
+                errorContent = json;
+            }
+            else if (string.IsNullOrWhiteSpace(json))
+            {
+                // 204 No Content from a potential returned null
+                // Will throw if attempts to deserialise but didn't
+                // feel right making it part of the error if branch
+                // even if there is no content.
+            }
+            else
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                options.Converters.Add(new JsonStringEnumConverter());
+                responseBody = JsonSerializer.Deserialize<TResponse>(json, options);
+            }
+
+            var getWithResponseCode = new ApiResponse<TResponse>(responseBody, response.StatusCode, errorContent);
+
+            return getWithResponseCode;
+        }
+
         public async Task<ApiResponse<TResponse>> Post<TResponse>(IPostApiRequest request, bool includeResponse = true)
         {
             var stringContent = request.Data != null ? new StringContent(JsonSerializer.Serialize(request.Data), Encoding.UTF8, "application/json") : null;
@@ -83,7 +119,11 @@ namespace SFA.DAS.EarlyConnect.Infrastructure.OuterApi
         string PostUrl { get; }
         object Data { get; set; }
     }
-
+    public interface IGetApiRequest : IBaseApiRequest
+    {
+        [JsonIgnore]
+        string GetUrl { get; }
+    }
     public interface IBaseApiRequest
     {
         [JsonIgnore]
