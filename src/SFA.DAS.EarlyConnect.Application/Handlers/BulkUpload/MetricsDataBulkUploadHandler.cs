@@ -163,7 +163,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
         static int ParseInteger(IDictionary<string, object> dict, string key) =>
             int.TryParse(dict.TryGetValue(key, out var value) ? value?.ToString()?.Trim() : "0", out var result) ? result : 0;
 
-        bool ParseBoolean(IDictionary<string, object> dict, string key)
+        static bool ParseBoolean(IDictionary<string, object> dict, string key)
         {
             if (dict.TryGetValue(key, out var value))
             {
