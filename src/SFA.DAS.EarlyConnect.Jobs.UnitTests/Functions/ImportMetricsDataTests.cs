@@ -10,11 +10,12 @@ using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
+using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Models.BulkImport;
 using SFA.DAS.EarlyConnect.Models.CreateLog;
 using SFA.DAS.EarlyConnect.Models.UpdateLog;
 
-namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
+namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
 {
     [TestFixture]
     public class ImportMetricsDataTests

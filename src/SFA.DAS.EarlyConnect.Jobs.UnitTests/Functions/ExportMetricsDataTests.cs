@@ -11,10 +11,11 @@ using NUnit.Framework;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
 using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Services;
+using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Responses;
 using SFA.DAS.EarlyConnect.Models.BulkExport;
 
-namespace SFA.DAS.EarlyConnect.Functions.UnitTests.Functions
+namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
 {
     [TestFixture]
     public class ExportMetricsDataTests
