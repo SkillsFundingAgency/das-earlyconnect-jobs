@@ -11,7 +11,7 @@ using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;
 using System.Net;
 using SFA.DAS.EarlyConnect.Models.MetricsData;
 
-namespace SFA.DAS.EarlyConnect.Application.Handlers
+namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 {
     public class MetricsDataBulkUploadHandler : IMetricsDataBulkUploadHandler
     {
@@ -32,7 +32,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
             _outerApiClient = outerApiClient;
         }
 
-        public async Task<BulkImportStatus> Handle(Stream fileStream,int logId)
+        public async Task<BulkImportStatus> Handle(Stream fileStream, int logId)
         {
             _logger.LogInformation("about to handle metrics data import");
 
@@ -87,7 +87,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
 
                     var response = await _outerApiClient.Post<object>(new CreateMetricsDataRequest(metricsDataList), false);
 
-                    return response.StatusCode == HttpStatusCode.OK
+                    return response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created
                         ? new BulkImportStatus { Status = ImportStatus.Completed, Errors = response.ErrorContent }
                         : new BulkImportStatus { Status = ImportStatus.Error, Errors = response.ErrorContent };
                 }
@@ -136,7 +136,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
         public bool HasMandatoryData(StreamReader stream)
         {
             stream.DiscardBufferedData();
-            stream.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+            stream.BaseStream.Seek(0, SeekOrigin.Begin);
 
             var headerLine = stream.ReadLine();
 

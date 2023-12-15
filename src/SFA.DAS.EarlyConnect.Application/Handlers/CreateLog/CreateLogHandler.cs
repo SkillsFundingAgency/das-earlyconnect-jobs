@@ -4,9 +4,8 @@ using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;
 using SFA.DAS.EarlyConnect.Infrastructure.Extensions;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Responses;
-using SFA.DAS.EarlyConnect.Models.CreateLog;
 
-namespace SFA.DAS.EarlyConnect.Application.Handlers
+namespace SFA.DAS.EarlyConnect.Application.Handlers.CreateLog
 {
     public class CreateLogHandler : ICreateLogHandler
     {
@@ -23,7 +22,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
             _outerApiClient = outerApiClient;
         }
 
-        public async Task<int> Handle(CreateLog createLog)
+        public async Task<int> Handle(Models.CreateLog.CreateLog createLog)
         {
             _logger.LogInformation("about to handle create log");
 
