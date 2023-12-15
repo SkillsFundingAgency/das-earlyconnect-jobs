@@ -65,7 +65,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
                             WillingnessToRelocate = ParseBoolean(contactDictionary, "Willing_to_relocate_flag"),
                             NoOfGCSCs = ParseInteger(contactDictionary, "Number_gcse_grade4"),
                             NoOfStudents = ParseInteger(contactDictionary, "Students"),
-                            LogId = 1,
+                            LogId = 3,
                             MetricFlags = new List<string>()
                         };
 
