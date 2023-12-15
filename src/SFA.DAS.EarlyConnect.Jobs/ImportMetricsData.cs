@@ -49,7 +49,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 log.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
-                logId = await CreateLog(ImportStatus.InProgress, fileStream, fileName, context);
+                logId = await CreateLog(fileStream, fileName, context);
 
                 var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream, logId);
 
@@ -81,7 +81,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             }
         }
 
-        private async Task<int> CreateLog(ImportStatus status, Stream fileStream, string fileName, ExecutionContext context)
+        private async Task<int> CreateLog(Stream fileStream, string fileName, ExecutionContext context)
         {
             string fileContent;
             var actionName = context.FunctionName;

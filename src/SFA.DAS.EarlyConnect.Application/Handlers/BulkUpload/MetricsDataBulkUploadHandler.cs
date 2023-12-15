@@ -115,12 +115,12 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                 importStatus.Errors = "No headers - File is empty so cannot be processed";
             }
 
-            else if (_csvService.HasData(sr) == false)
+            else if (!_csvService.HasData(sr))
             {
                 importStatus.Errors = "Missing data - there is no data to process";
             }
 
-            else if (HasMandatoryData(sr) == false)
+            else if (!HasMandatoryData(sr))
             {
                 importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
@@ -133,7 +133,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             return importStatus;
         }
 
-        public bool HasMandatoryData(StreamReader stream)
+        public static bool HasMandatoryData(StreamReader stream)
         {
             stream.DiscardBufferedData();
             stream.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -157,10 +157,10 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
         }
 
 
-        decimal ParseDecimal(IDictionary<string, object> dict, string key) =>
+        static decimal ParseDecimal(IDictionary<string, object> dict, string key) =>
             decimal.TryParse(dict.TryGetValue(key, out var value) ? value?.ToString()?.Trim() : "0", out var result) ? result : 0;
 
-        int ParseInteger(IDictionary<string, object> dict, string key) =>
+        static int ParseInteger(IDictionary<string, object> dict, string key) =>
             int.TryParse(dict.TryGetValue(key, out var value) ? value?.ToString()?.Trim() : "0", out var result) ? result : 0;
 
         bool ParseBoolean(IDictionary<string, object> dict, string key)
@@ -174,12 +174,12 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             return false;
         }
 
-        bool IsSpecifiedField(string key) =>
+        static bool IsSpecifiedField(string key) =>
             key == "REGION" || key == "INTENDED_UNI_ENTRY_YEAR" ||
             key == "MAX_TRAVEL_DISTANCE" || key == "WILLING_TO_RELOCATE_FLAG" ||
             key == "NUMBER_GCSE_GRADE4" || key == "STUDENTS";
 
-        bool IsSpecifiedValue(string value) =>
+        static bool IsSpecifiedValue(string value) =>
             value == "1" || value == "Y" || value == "YES";
 
         static int CalculateMiles(string text)
