@@ -274,22 +274,6 @@
                                     "value": "[parameters('loggingRedisKey')]"
                                 },
                                 {
-                                  "name": "SourceContainer",
-                                  "value": "import-metricsdata"
-                                },
-                                {
-                                  "name": "ExportContainer",
-                                  "value": "export-metricsdata"
-                                },
-                                {
-                                  "name": "ArchivedCompletedContainer",
-                                  "value": "archived-completed-metricsdata"
-                                },
-                                {
-                                  "name": "ArchivedFailedContainer",
-                                  "value": "archived-error-metricsdata"
-                                },
-                                {
                                     "name": "FUNCTIONS_EXTENSION_VERSION",
                                     "value": "~4"
                                 },
