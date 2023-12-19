@@ -28,7 +28,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         {
             _metricsDataBulkDownloadHandler = metricsDataBulkDownloadHandler;
             _blobService = blobService;
-            _exportContainer = configuration["ExportContainer"];
+            _exportContainer = configuration["Containers:ExportContainer"];
             _getLEPSDataWithUsersHandler = getLEPSDataWithUsersHandler;
         }
 

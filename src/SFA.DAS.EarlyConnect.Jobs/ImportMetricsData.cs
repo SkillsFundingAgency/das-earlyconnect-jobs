@@ -33,12 +33,12 @@ namespace SFA.DAS.EarlyConnect.Functions
             _metricsDataBulkUploadHandler = metricsDataBulkUploadHandler;
             _blobService = blobService;
 
-            _sourceContainer = configuration["SourceContainer"];
-            _archivedCompletedContainer = configuration["ArchivedCompletedContainer"];
-            _archivedFailedContainer = configuration["ArchivedFailedContainer"];
+            _sourceContainer = configuration["Containers:SourceContainer"];
+            _archivedCompletedContainer = configuration["Containers:ArchivedCompletedContainer"];
+            _archivedFailedContainer = configuration["Containers:ArchivedFailedContainer"];
         }
         [FunctionName("ImportMetricsData")]
-        public async Task Run([BlobTrigger("%SourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
+        public async Task Run([BlobTrigger("%Containers:SourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
         {
             int logId = 0;
 
