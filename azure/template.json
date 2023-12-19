@@ -341,7 +341,7 @@
         {
             "apiVersion": "2021-04-01",
             "name": "[concat('storage-account-container-', variables('storageContainerNames')[copyIndex()])]",
-            "resourceGroup": "[variables('resourceGroupName')]",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
