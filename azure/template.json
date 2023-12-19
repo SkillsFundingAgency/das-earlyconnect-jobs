@@ -29,6 +29,9 @@
         "resourceGroupLocation": {
             "type": "string"
         },
+        "sharedStorageAccountName": {
+            "type": "string"
+        },
         "sharedStorageAccountConnectionString": {
             "type": "securestring"
         },
@@ -85,7 +88,6 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
-        "storageAccountName": "[concat('das',toLower(parameters('resourceEnvironmentName')),parameters('serviceName'),'str')]",
         "storageContainerNames": [ "import-metricsdata", "archived-completed-metricsdata", "archived-error-metricsdata", "export-metricsdata" ],
         "configNames": "SFA.DAS.EarlyConnect.Jobs"
     },
@@ -336,32 +338,9 @@
                 }
             }
         },
-        {   "apiVersion": "2021-04-01",
-            "name": "[concat(variables('storageAccountName'), '-', parameters('utcValue'))]",
-            "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[variables('resourceGroupName')]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'storage-account-arm.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "storageAccountName": {
-                        "value": "[variables('storageAccountName')]"
-                    },
-                    "allowSharedKeyAccess": {
-                        "value": true
-                    }
-                }
-            },
-            "dependsOn": [
-                "[variables('resourceGroupName')]"
-            ]
-        },
         {
             "apiVersion": "2021-04-01",
-            "name": "[concat(variables('storageAccountName'), '-', variables('storageContainerNames')[copyIndex()])]",
+            "name": "[concat('storage-account-container-', variables('storageContainerNames')[copyIndex()])]",
             "resourceGroup": "[variables('resourceGroupName')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -372,7 +351,7 @@
                 },
                 "parameters": {
                     "storageAccountName": {
-                        "value": "[variables('storageAccountName')]"
+                        "value": "[parameters('sharedStorageAccountName')]"
                     },
                     "containerName": {
                         "value": "[variables('storageContainerNames')[copyIndex()]]"
@@ -382,10 +361,7 @@
             "copy": {
                 "count": "[length(variables('storageContainerNames'))]",
                 "name": "storageContainerCopy"
-            },
-            "dependsOn": [
-                "[concat(variables('storageAccountName'), '-', parameters('utcValue'))]"
-            ]
+            }
         }
     ],
     "outputs": {
