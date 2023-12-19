@@ -29,7 +29,7 @@
         "resourceGroupLocation": {
             "type": "string"
         },
-        "earlyConnectStorageAccountConnectionString": {
+        "sharedStorageAccountConnectionString": {
             "type": "securestring"
         },
         "sharedEnvVirtualNetworkName": {
@@ -261,7 +261,7 @@
                                 },
                                 {
                                     "name": "AzureWebJobsStorage",
-                                    "value": "[parameters('earlyConnectStorageAccountConnectionString')]"
+                                    "value": "[parameters('sharedStorageAccountConnectionString')]"
                                 },
                                 {
                                     "name": "LoggingRedisConnectionString",
