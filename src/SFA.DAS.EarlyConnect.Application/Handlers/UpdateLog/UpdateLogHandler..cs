@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;
-using SFA.DAS.EarlyConnect.Models.UpdateLog;
 using SFA.DAS.EarlyConnect.Infrastructure.Extensions;
 
-namespace SFA.DAS.EarlyConnect.Application.Handlers
+namespace SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog
 {
     public class UpdateLogHandler : IUpdateLogHandler
     {
@@ -22,7 +21,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers
             _outerApiClient = outerApiClient;
         }
 
-        public async Task Handle(UpdateLog updateLog)
+        public async Task Handle(Models.UpdateLog.UpdateLog updateLog)
         {
             _logger.LogInformation("about to handle update log");
 

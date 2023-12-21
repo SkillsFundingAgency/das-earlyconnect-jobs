@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EarlyConnect.Application.Handlers;
+using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Infrastructure.Extensions;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;

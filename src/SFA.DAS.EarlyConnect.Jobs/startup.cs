@@ -9,15 +9,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Services;
-using SFA.DAS.EarlyConnect.Application.Handlers;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
-using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
 using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
+using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
+using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
+using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
+using SFA.DAS.EarlyConnect.jobs;
 
 [assembly: FunctionsStartup(typeof(Startup))]
-namespace SFA.DAS.EarlyConnect.Functions
+namespace SFA.DAS.EarlyConnect.jobs
 {
     public class Startup : FunctionsStartup
     {
