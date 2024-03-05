@@ -68,7 +68,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                         filledObjects.Add(studentFeedback);
                     }
 
-                    var studentFeedbackList = new StudentFeedbackList { StudentFeedback = filledObjects.ToList() };
+                    var studentFeedbackList = new StudentFeedbackList { ListOfStudentFeedback = filledObjects.ToList() };
 
                     var response = await _outerApiClient.Post<object>(new CreateStudentFeedbackRequest(studentFeedbackList), false);
 

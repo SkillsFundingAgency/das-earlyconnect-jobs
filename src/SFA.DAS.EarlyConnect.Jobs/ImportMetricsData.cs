@@ -38,6 +38,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             _archivedCompletedContainer = configuration["Containers:MetricsDataArchivedCompletedContainer"];
             _archivedFailedContainer = configuration["Containers:MetricsDataArchivedFailedContainer"];
         }
+
         [FunctionName("ImportMetricsData")]
         public async Task Run([BlobTrigger("%Containers:MetricsDataSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
         {

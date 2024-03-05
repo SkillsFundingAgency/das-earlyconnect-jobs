@@ -6,7 +6,7 @@ namespace SFA.DAS.EarlyConnect.Models.StudentFeedback
 {
     public class StudentFeedbackList
     {
-        public IEnumerable<StudentFeedback> StudentFeedback { get; set; }
+        public IEnumerable<StudentFeedback> ListOfStudentFeedback { get; set; }
     }
     public class StudentFeedback
     {
