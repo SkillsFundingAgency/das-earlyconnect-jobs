@@ -34,13 +34,13 @@ namespace SFA.DAS.EarlyConnect.Jobs
             _studentFeedbackBulkUploadHandler = studentFeedbackBulkUploadHandler;
             _blobService = blobService;
 
-            _sourceContainer = configuration["Containers:SourceContainer"];
-            _archivedCompletedContainer = configuration["Containers:ArchivedCompletedContainer"];
-            _archivedFailedContainer = configuration["Containers:ArchivedFailedContainer"];
+            _sourceContainer = configuration["Containers:StudentFeedbackSourceContainer"];
+            _archivedCompletedContainer = configuration["Containers:StudentFeedbackArchivedCompletedContainer"];
+            _archivedFailedContainer = configuration["Containers:StudentFeedbackArchivedFailedContainer"];
         }
 
         [FunctionName("ImportStudentFeedback")]
-        public async Task Run([BlobTrigger("%Containers:SourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
+        public async Task Run([BlobTrigger("%Containers:StudentFeedbackSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
         {
             int logId = 0;
 
