@@ -51,15 +51,19 @@ namespace SFA.DAS.EarlyConnect.Jobs
 
                 logId = await LogHelper.CreateLog(fileStream, fileName, context, "StudentFeedbackFile", _createLogHandler);
 
+                log.LogInformation($"\n LOG ID:{logId} \n");
+
                 var bulkImportStatus = await _studentFeedbackBulkUploadHandler.Handle(fileStream, logId);
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
+                    log.LogInformation($"\n STATUS COMPLETED \n");
                     await LogHelper.UpdateLog(logId, ImportStatus.Completed, _updateLogHandler);
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
+                    log.LogInformation($"\n STATUS ERROR \n");
                     await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, bulkImportStatus.Errors);
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                 }

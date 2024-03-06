@@ -33,7 +33,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 
         public async Task<BulkImportStatus> Handle(Stream fileStream, int logId)
         {
-            _logger.LogInformation("about to handle metrics data import");
+            _logger.LogInformation("Handling student feedback data import");
 
             using (var sr = new StreamReader(fileStream))
             {
@@ -71,6 +71,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                     var studentFeedbackList = new StudentFeedbackList { ListOfStudentFeedback = filledObjects.ToList() };
 
                     var response = await _outerApiClient.Post<object>(new CreateStudentFeedbackRequest(studentFeedbackList), false);
+
+                    _logger.LogInformation($"\n STATUS CODE FOR OUTER API RESPONSE: {response.StatusCode} \n");
 
                     return response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created
                         ? new BulkImportStatus { Status = ImportStatus.Completed, Errors = response.ErrorContent }
