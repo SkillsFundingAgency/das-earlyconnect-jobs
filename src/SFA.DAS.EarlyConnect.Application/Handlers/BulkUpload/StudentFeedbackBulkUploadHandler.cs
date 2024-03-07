@@ -11,6 +11,7 @@ using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;
 using System.Net;
 using SFA.DAS.EarlyConnect.Models.StudentFeedback;
 using SFA.DAS.EarlyConnect.Application.Helpers;
+using Azure;
 
 namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 {
@@ -110,6 +111,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             else if (!HasMandatoryData(sr))
             {
                 importStatus.Errors = "One or more required fields are missing in the CSV header";
+                _logger.LogInformation($"\n HEADERLINE: {sr.ReadLine()} \n");
             }
 
             if (importStatus.Errors != null)
