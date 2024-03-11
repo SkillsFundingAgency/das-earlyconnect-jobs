@@ -9,19 +9,20 @@ using System.Linq;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi.Requests;
 using System.Net;
-using SFA.DAS.EarlyConnect.Models.MetricsData;
+using SFA.DAS.EarlyConnect.Models.StudentFeedback;
 using SFA.DAS.EarlyConnect.Application.Helpers;
+using Azure;
 
 namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 {
-    public class MetricsDataBulkUploadHandler : IMetricsDataBulkUploadHandler
+    public class StudentFeedbackBulkUploadHandler : IStudentFeedbackBulkUploadHandler
     {
-        private readonly ILogger<MetricsDataBulkUploadHandler> _logger;
+        private readonly ILogger<StudentFeedbackBulkUploadHandler> _logger;
         private readonly ICsvService _csvService;
         private readonly IOuterApiClient _outerApiClient;
 
-        public MetricsDataBulkUploadHandler(
-            ILogger<MetricsDataBulkUploadHandler> logger,
+        public StudentFeedbackBulkUploadHandler(
+            ILogger<StudentFeedbackBulkUploadHandler> logger,
             IOuterApiClient outerApiClient,
             ICsvService csvService
         )
@@ -33,7 +34,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 
         public async Task<BulkImportStatus> Handle(Stream fileStream, int logId)
         {
-            _logger.LogInformation("about to handle metrics data import");
+            _logger.LogInformation("Handling student feedback data import");
 
             using (var sr = new StreamReader(fileStream))
             {
@@ -49,42 +50,30 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                     IList<dynamic> contacts = null;
                     contacts = await _csvService.ConvertToList(sr);
 
-                    List<MetricsData> filledObjects = new List<MetricsData>();
+
+                    List<StudentFeedback> filledObjects = new List<StudentFeedback>();
 
                     foreach (var contact in contacts)
                     {
                         IDictionary<string, object> contactDictionary = contact;
 
-                        var metricData = new MetricsData
+                        var studentFeedback = new StudentFeedback
                         {
-                            Region = TextHelper.ExtractText(contactDictionary.TryGetValue("Region", out var regionValue) ? regionValue?.ToString() : string.Empty),
-                            IntendedStartYear = TextHelper.ParseDecimal(contactDictionary, "Intended_uni_entry_year"),
-                            MaxTravelInMiles = CalculateMiles(contactDictionary.TryGetValue("Max_travel_distance", out var maxTravelInMilesValue) ? maxTravelInMilesValue?.ToString()?.Trim() : "0"),
-                            WillingnessToRelocate = TextHelper.ParseBoolean(contactDictionary, "Willing_to_relocate_flag"),
-                            NoOfGCSCs = TextHelper.ParseInteger(contactDictionary, "Number_gcse_grade4"),
-                            NoOfStudents = TextHelper.ParseInteger(contactDictionary, "Students"),
-                            LogId = logId,
-                            MetricFlags = new List<string>()
+                            SurveyId = TextHelper.ExtractGuid(contactDictionary.TryGetValue("SurveyId", out var surveyIdValue) ? surveyIdValue?.ToString() : string.Empty),
+                            StatusUpdate = TextHelper.ExtractText(contactDictionary.TryGetValue("StatusUpdate", out var statusUpdateValue) ? statusUpdateValue?.ToString() : string.Empty),
+                            Notes = TextHelper.ExtractText(contactDictionary.TryGetValue("Notes", out var notesValue) ? notesValue?.ToString() : string.Empty),
+                            UpdatedBy = TextHelper.ExtractText(contactDictionary.TryGetValue("UpdatedBy", out var updatedByValue) ? updatedByValue?.ToString() : string.Empty),
+                            LogId = logId
                         };
 
-                        foreach (var kvp in contactDictionary)
-                        {
-                            string valueAsString = kvp.Value?.ToString()?.Trim()?.ToUpperInvariant();
-                            string keyAsString = kvp.Key?.Trim().ToUpperInvariant();
-
-                            if (!IsSpecifiedField(keyAsString) && TextHelper.IsSpecifiedValue(valueAsString))
-                            {
-                                metricData.MetricFlags.Add(kvp.Key);
-
-                            }
-                        }
-
-                        filledObjects.Add(metricData);
+                        filledObjects.Add(studentFeedback);
                     }
 
-                    var metricsDataList = new MetricsDataList { MetricsData = filledObjects.ToList() };
+                    var studentFeedbackList = new StudentFeedbackList { ListOfStudentFeedback = filledObjects.ToList() };
 
-                    var response = await _outerApiClient.Post<object>(new CreateMetricsDataRequest(metricsDataList), false);
+                    var response = await _outerApiClient.Post<object>(new CreateStudentFeedbackRequest(studentFeedbackList), false);
+
+                    _logger.LogInformation($"\n STATUS CODE FOR OUTER API RESPONSE: {response.StatusCode} \n");
 
                     return response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created
                         ? new BulkImportStatus { Status = ImportStatus.Completed, Errors = response.ErrorContent }
@@ -141,37 +130,15 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 
             if (headerLine != null)
             {
-
                 var headers = headerLine.Split(',');
 
-                return headers.Contains("Region") &&
-                       headers.Contains("Intended_uni_entry_year") &&
-                       headers.Contains("Max_travel_distance") &&
-                       headers.Contains("Willing_to_relocate_flag") &&
-                       headers.Contains("Number_gcse_grade4") &&
-                       headers.Contains("Students");
+                return headers.Contains("SurveyId") &&
+                       headers.Contains("StatusUpdate") &&
+                       headers.Contains("Notes") &&
+                       headers.Contains("UpdatedBy");
             }
 
             return false;
         }
-
-        static bool IsSpecifiedField(string key) =>
-            key == "REGION" || key == "INTENDED_UNI_ENTRY_YEAR" ||
-            key == "MAX_TRAVEL_DISTANCE" || key == "WILLING_TO_RELOCATE_FLAG" ||
-            key == "NUMBER_GCSE_GRADE4" || key == "STUDENTS";
-
-        static int CalculateMiles(string text)
-        {
-            string[] parts = text.Split('_');
-
-            if (parts.Length == 3 && int.TryParse(parts[0], out int lowerBound) && int.TryParse(parts[1], out int upperBound))
-            {
-                return (lowerBound + upperBound) / 2;
-            }
-
-            return 0;
-        }
     }
 }
-
-

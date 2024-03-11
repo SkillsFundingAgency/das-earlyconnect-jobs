@@ -64,6 +64,7 @@ namespace SFA.DAS.EarlyConnect.jobs
             services.AddHttpClient<IOuterApiClient, OuterApiClient>();
             services.AddTransient<ICreateLogHandler, CreateLogHandler>();
             services.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+            services.AddTransient<IStudentFeedbackBulkUploadHandler, StudentFeedbackBulkUploadHandler>();
             services.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
             services.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
             services.AddTransient<ICsvService, CsvService>();

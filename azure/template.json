@@ -88,7 +88,7 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
-        "storageContainerNames": [ "import-metricsdata", "archived-completed-metricsdata", "archived-error-metricsdata", "export-metricsdata" ],
+      "storageContainerNames": [ "import-metricsdata", "archived-completed-metricsdata", "archived-error-metricsdata", "export-metricsdata", "import-studentfeedback", "archived-completed-studentfeedback", "archived-error-studentfeedback" ],
         "configNames": "SFA.DAS.EarlyConnect.Jobs"
     },
     "resources": [
