@@ -8,6 +8,7 @@ using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
+using SFA.DAS.EarlyConnect.Jobs;
 using SFA.DAS.EarlyConnect.Jobs.Helpers;
 using SFA.DAS.EarlyConnect.Models.BulkImport;
 
@@ -19,6 +20,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         private readonly IMetricsDataBulkUploadHandler _metricsDataBulkUploadHandler;
         private readonly ICreateLogHandler _createLogHandler;
         private readonly IUpdateLogHandler _updateLogHandler;
+        private readonly ILogger<ImportMetricsData> _logger;
         private readonly string _sourceContainer;
         private readonly string _archivedCompletedContainer;
         private readonly string _archivedFailedContainer;
@@ -27,7 +29,8 @@ namespace SFA.DAS.EarlyConnect.Functions
             ICreateLogHandler createLogHandler,
             IUpdateLogHandler updateLogHandler,
             IBlobService blobService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<ImportMetricsData> logger)
         {
             _createLogHandler = createLogHandler;
             _updateLogHandler = updateLogHandler;
@@ -37,17 +40,18 @@ namespace SFA.DAS.EarlyConnect.Functions
             _sourceContainer = configuration["Containers:MetricsDataSourceContainer"];
             _archivedCompletedContainer = configuration["Containers:MetricsDataArchivedCompletedContainer"];
             _archivedFailedContainer = configuration["Containers:MetricsDataArchivedFailedContainer"];
+            _logger = logger;
         }
 
         [Function("ImportMetricsData")]
-        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
+        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, FunctionContext context)
         {
             int logId = 0;
 
             try
             {
 
-                log.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
+                _logger.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 logId = await LogHelper.CreateLog(fileStream, fileName, context, "UCAS", _createLogHandler);
 
@@ -65,7 +69,7 @@ namespace SFA.DAS.EarlyConnect.Functions
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                 }
 
-                log.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
+                _logger.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 fileStream.Close();
             }
@@ -73,7 +77,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             {
                 var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
 
-                log.LogError($"Unable to import Metric Data CSV: {ex}");
+                _logger.LogError($"Unable to import Metric Data CSV: {ex}");
 
                 if (logId > 0) await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, $"Error posting Metrics data. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
 

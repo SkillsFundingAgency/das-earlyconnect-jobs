@@ -1,10 +1,12 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
+using SFA.DAS.EarlyConnect.Functions;
 using SFA.DAS.EarlyConnect.Jobs.Helpers;
 using SFA.DAS.EarlyConnect.Models.BulkImport;
 using System;
@@ -19,6 +21,7 @@ namespace SFA.DAS.EarlyConnect.Jobs
         private readonly IStudentFeedbackBulkUploadHandler _studentFeedbackBulkUploadHandler;
         private readonly ICreateLogHandler _createLogHandler;
         private readonly IUpdateLogHandler _updateLogHandler;
+        private readonly ILogger<ImportStudentFeedback> _logger;
         private readonly string _sourceContainer;
         private readonly string _archivedCompletedContainer;
         private readonly string _archivedFailedContainer;
@@ -27,48 +30,49 @@ namespace SFA.DAS.EarlyConnect.Jobs
             ICreateLogHandler createLogHandler,
             IUpdateLogHandler updateLogHandler,
             IBlobService blobService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<ImportStudentFeedback> logger)
         {
             _createLogHandler = createLogHandler;
             _updateLogHandler = updateLogHandler;
             _studentFeedbackBulkUploadHandler = studentFeedbackBulkUploadHandler;
             _blobService = blobService;
-
             _sourceContainer = configuration["Containers:StudentFeedbackSourceContainer"];
             _archivedCompletedContainer = configuration["Containers:StudentFeedbackArchivedCompletedContainer"];
             _archivedFailedContainer = configuration["Containers:StudentFeedbackArchivedFailedContainer"];
+            _logger = logger;
         }
 
         [Function("ImportStudentFeedback")]
-        public async Task Run([BlobTrigger("import-studentfeedback/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
+        public async Task Run([BlobTrigger("import-studentfeedback/{fileName}")] Stream fileStream, string fileName, FunctionContext context)
         {
             int logId = 0;
 
             try
             {
 
-                log.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
+                _logger.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 logId = await LogHelper.CreateLog(fileStream, fileName, context, "StudentFeedbackFile", _createLogHandler);
 
-                log.LogInformation($"\n LOG ID:{logId} \n");
+                _logger.LogInformation($"\n LOG ID:{logId} \n");
 
                 var bulkImportStatus = await _studentFeedbackBulkUploadHandler.Handle(fileStream, logId);
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
-                    log.LogInformation($"\n STATUS COMPLETED \n");
+                    _logger.LogInformation($"\n STATUS COMPLETED \n");
                     await LogHelper.UpdateLog(logId, ImportStatus.Completed, _updateLogHandler);
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
                 {
-                    log.LogInformation($"\n STATUS ERROR \n");
+                    _logger.LogInformation($"\n STATUS ERROR \n");
                     await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, bulkImportStatus.Errors);
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedFailedContainer);
                 }
 
-                log.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
+                _logger.LogInformation($"Blob trigger function completed processing blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
                 fileStream.Close();
             }
@@ -76,7 +80,7 @@ namespace SFA.DAS.EarlyConnect.Jobs
             {
                 var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
 
-                log.LogError($"Unable to import Student feedback CSV: {ex}");
+                _logger.LogError($"Unable to import Student feedback CSV: {ex}");
 
                 if (logId > 0) await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler,
                     $"Error posting student feedback. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
