@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
@@ -39,8 +39,8 @@ namespace SFA.DAS.EarlyConnect.Functions
             _archivedFailedContainer = configuration["Containers:MetricsDataArchivedFailedContainer"];
         }
 
-        [FunctionName("ImportMetricsData")]
-        public async Task Run([BlobTrigger("%Containers:MetricsDataSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
+        [Function("ImportMetricsData")]
+        public async Task Run([BlobTrigger("%Containers:MetricsDataSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
         {
             int logId = 0;
 

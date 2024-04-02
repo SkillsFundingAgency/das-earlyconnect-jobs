@@ -3,8 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
@@ -32,7 +31,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             _getLEPSDataWithUsersHandler = getLEPSDataWithUsersHandler;
         }
 
-        [FunctionName("ExportMetricsData_Timer")]
+        [Function("ExportMetricsData_Timer")]
         public async Task RunTimer(
             [TimerTrigger("%Functions:ExportMetricsDataJobSchedule%")] TimerInfo timerInfo,
             ILogger log)
@@ -40,7 +39,7 @@ namespace SFA.DAS.EarlyConnect.Functions
             await Run(null, log);
         }
 
-        [FunctionName("ExportMetricsData_Http")]
+        [Function("ExportMetricsData_Http")]
         public async Task<IActionResult> RunHttp(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)

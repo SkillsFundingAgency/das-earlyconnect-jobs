@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Azure;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         private string _fileName;
         private Stream _fileStream;
         private ILogger _logger;
-        private ExecutionContext _executionContext;
+        private FunctionContext _executionContext;
 
         [SetUp]
         public void SetUp()
@@ -55,7 +56,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             _fileName = "testFile.csv";
             _fileStream = new MemoryStream();
             _logger = Mock.Of<ILogger>();
-            _executionContext = Mock.Of<ExecutionContext>();
+            _executionContext = Mock.Of<FunctionContext>();
         }
 
         [Test]

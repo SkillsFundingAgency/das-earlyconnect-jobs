@@ -2,23 +2,19 @@
 using SFA.DAS.EarlyConnect.Models.BulkImport;
 using SFA.DAS.EarlyConnect.Models.CreateLog;
 using SFA.DAS.EarlyConnect.Models.UpdateLog;
-using Microsoft.Azure.WebJobs;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
+using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.EarlyConnect.Jobs.Helpers
 {
     public static class LogHelper
     {
-        public static async Task<int> CreateLog(Stream fileStream, string fileName, ExecutionContext context, string requestResource, ICreateLogHandler _createLogHandler)
+        public static async Task<int> CreateLog(Stream fileStream, string fileName, FunctionContext context, string requestResource, ICreateLogHandler _createLogHandler)
         {
             string fileContent;
-            var actionName = context.FunctionName;
+            var actionName = context.FunctionDefinition.Name;
 
             using (var memoryStream = new MemoryStream())
             {

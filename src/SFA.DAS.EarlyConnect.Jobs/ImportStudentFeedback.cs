@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
@@ -39,8 +39,8 @@ namespace SFA.DAS.EarlyConnect.Jobs
             _archivedFailedContainer = configuration["Containers:StudentFeedbackArchivedFailedContainer"];
         }
 
-        [FunctionName("ImportStudentFeedback")]
-        public async Task Run([BlobTrigger("%Containers:StudentFeedbackSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, ExecutionContext context)
+        [Function("ImportStudentFeedback")]
+        public async Task Run([BlobTrigger("%Containers:StudentFeedbackSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
         {
             int logId = 0;
 
