@@ -22,7 +22,6 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(s =>
     {
-        // serviceProvider
         var serviceProvider = s.BuildServiceProvider();
         var configuration = serviceProvider.GetService<IConfiguration>();
 
@@ -45,10 +44,10 @@ var host = new HostBuilder()
 
 
         var config = configBuilder.Build();
-        s.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
+        //s.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
         // ConfigureServices(builder.Services, config);
 
-        s.Configure<OuterApiConfiguration>(configuration.GetSection("OuterApiConfiguration"));
+        s.Configure<OuterApiConfiguration>(config.GetSection("OuterApiConfiguration"));
 
         s.AddOptions();
 
@@ -60,29 +59,21 @@ var host = new HostBuilder()
         s.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
         s.AddTransient<ICsvService, CsvService>();
         s.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
-        s.AddSingleton<IConfiguration>(configuration);
+        s.AddSingleton<IConfiguration>(config);
         s.AddTransient<IBlobService, BlobService>();
         s.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
-            new BlobContainerClientWrapper(configuration.GetValue<string>("AzureWebJobsStorage")));
+            new BlobContainerClientWrapper(config.GetValue<string>("AzureWebJobsStorage")));
 
-        // logging and app insights
-        s.AddLogging((options) =>
-        {
-            options.SetMinimumLevel(LogLevel.Trace);
-            options.SetMinimumLevel(LogLevel.Trace);
-            options.AddNLog(new NLogProviderOptions
-            {
-                CaptureMessageTemplates = true,
-                CaptureMessageProperties = true
-            });
-
-        });
         s.AddApplicationInsightsTelemetryWorkerService(options =>
         {
-            options.ConnectionString = configuration["APPINSIGHTS_INSTRUMENTATIONKEY"];
+            options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
         });
         s.ConfigureFunctionsApplicationInsights();
 
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
     })
     .Build();
 

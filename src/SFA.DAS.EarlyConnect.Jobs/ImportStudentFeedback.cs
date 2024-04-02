@@ -40,7 +40,7 @@ namespace SFA.DAS.EarlyConnect.Jobs
         }
 
         [Function("ImportStudentFeedback")]
-        public async Task Run([BlobTrigger("%Containers:StudentFeedbackSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
+        public async Task Run([BlobTrigger("import-studentfeedback/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
         {
             int logId = 0;
 

@@ -40,7 +40,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         }
 
         [Function("ImportMetricsData")]
-        public async Task Run([BlobTrigger("%Containers:MetricsDataSourceContainer%/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
+        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, ILogger log, FunctionContext context)
         {
             int logId = 0;
 
