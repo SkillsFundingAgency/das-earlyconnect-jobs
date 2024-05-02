@@ -6,7 +6,6 @@ using SFA.DAS.EarlyConnect.Models.SendReminderEmail;
 
 namespace SFA.DAS.EarlyConnect.Infrastructure.UnitTests.Requests
 {
-
     [TestFixture]
     public class WhenBuildingSendReminderEmailRequest
     {
