@@ -45,6 +45,25 @@ namespace SFA.DAS.EarlyConnect.Jobs.Helpers
             return logId;
         }
 
+        public static async Task<int> CreateLog(string content, string fileName, ExecutionContext context, string requestResource, ICreateLogHandler _createLogHandler)
+        {
+            var actionName = context.FunctionName;
+
+            var createLog = new CreateLog
+            {
+                RequestType = actionName,
+                RequestSource = requestResource,
+                RequestIP = "",
+                Payload = content,
+                FileName = fileName,
+                Status = ImportStatus.InProgress.ToString()
+            };
+
+            var logId = await _createLogHandler.Handle(createLog);
+
+            return logId;
+        }
+
         public static async Task UpdateLog(int logId, ImportStatus status, IUpdateLogHandler _updateLogHandler, string error = "")
         {
             var updateLog = new UpdateLog

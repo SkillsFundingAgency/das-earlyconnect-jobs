@@ -15,6 +15,7 @@ using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
 using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
+using SFA.DAS.EarlyConnect.Application.Handlers.SendReminderEmail;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.jobs;
 
@@ -67,6 +68,7 @@ namespace SFA.DAS.EarlyConnect.jobs
             services.AddTransient<IStudentFeedbackBulkUploadHandler, StudentFeedbackBulkUploadHandler>();
             services.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
             services.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
+            services.AddTransient<ISendReminderEmailHandler, SendReminderEmailHandler>();
             services.AddTransient<ICsvService, CsvService>();
             services.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
             services.AddSingleton<IConfiguration>(configuration);
