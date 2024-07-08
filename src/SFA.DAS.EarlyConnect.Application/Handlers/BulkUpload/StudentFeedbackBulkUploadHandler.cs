@@ -110,7 +110,8 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 
             else if (!HasMandatoryData(sr))
             {
-                importStatus.Errors = "One or more required fields are missing in the CSV header";
+                importStatus.Errors = HasMandatoryDataString(sr);
+                //importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
 
             if (importStatus.Errors != null)
@@ -128,29 +129,63 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
 
             var headerLine = stream.ReadLine();
 
-            _logger.LogInformation("Header line: ", headerLine);
-
             if (headerLine != null)
             {
                 var headers = headerLine.Split(',');
-
-                _logger.LogInformation("Headers: ", headers);
 
                 var cck1 = headers.Contains("SurveyId");
                 var cck2 = headers.Contains("StatusUpdate");
                 var cck3 = headers.Contains("Notes");
                 var cck4 = headers.Contains("UpdatedBy");
 
-                _logger.LogInformation("Check 1: ", cck1);
-                _logger.LogInformation("Check 2: ", cck2);
-                _logger.LogInformation("Check 3: ", cck3);
-                _logger.LogInformation("Check 4: ", cck4);
-
                 return cck1 && cck2 && cck3 && cck4;
-
             }
 
             return false;
+        }
+
+        public string HasMandatoryDataString(StreamReader stream)
+        {
+            var error = "";
+
+            stream.DiscardBufferedData();
+            stream.BaseStream.Seek(0, SeekOrigin.Begin);
+
+            var headerLine = stream.ReadLine();
+
+            error += $"\n HeaderLine: {headerLine} \n";
+
+            if (headerLine != null)
+            {
+                var headers = headerLine.Split(',');
+
+                var cck1 = headers.Contains("SurveyId");
+                var cck2 = headers.Contains("StatusUpdate");
+                var cck3 = headers.Contains("Notes");
+                var cck4 = headers.Contains("UpdatedBy");
+
+                if (!cck1) 
+                {
+                    error += "SurveyId not found ";
+                }
+                if (!cck2)
+                {
+                    error += "StatusUpdate not found ";
+                }
+                if (!cck3)
+                {
+                    error += "Notes not found ";
+                }
+                if (!cck4)
+                {
+                    error += "UpdatedBy not found ";
+                }
+
+                return error;
+
+            }
+
+            return error;
         }
     }
 }
