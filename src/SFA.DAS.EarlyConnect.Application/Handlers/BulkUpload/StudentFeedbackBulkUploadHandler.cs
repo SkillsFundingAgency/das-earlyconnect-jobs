@@ -108,7 +108,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                 importStatus.Errors = "Missing data - there is no data to process";
             }
 
-            else if (!HasMandatoryData(sr, _logger))
+            else if (!HasMandatoryData(sr))
             {
                 importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
@@ -121,25 +121,33 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             return importStatus;
         }
 
-        public static bool HasMandatoryData(StreamReader stream, ILogger<StudentFeedbackBulkUploadHandler> logger)
+        public bool HasMandatoryData(StreamReader stream)
         {
             stream.DiscardBufferedData();
             stream.BaseStream.Seek(0, SeekOrigin.Begin);
 
             var headerLine = stream.ReadLine();
 
-            logger.LogInformation("Header line: ", headerLine);
+            _logger.LogInformation("Header line: ", headerLine);
 
             if (headerLine != null)
             {
                 var headers = headerLine.Split(',');
 
-                logger.LogInformation("Headers: ", headers);
+                _logger.LogInformation("Headers: ", headers);
 
-                return headers.Contains("SurveyId") &&
-                       headers.Contains("StatusUpdate") &&
-                       headers.Contains("Notes") &&
-                       headers.Contains("UpdatedBy");
+                var cck1 = headers.Contains("SurveyId");
+                var cck2 = headers.Contains("StatusUpdate");
+                var cck3 = headers.Contains("Notes");
+                var cck4 = headers.Contains("UpdatedBy");
+
+                _logger.LogInformation("Check 1: ", cck1);
+                _logger.LogInformation("Check 2: ", cck2);
+                _logger.LogInformation("Check 3: ", cck3);
+                _logger.LogInformation("Check 4: ", cck4);
+
+                return cck1 && cck2 && cck3 && cck4;
+
             }
 
             return false;
