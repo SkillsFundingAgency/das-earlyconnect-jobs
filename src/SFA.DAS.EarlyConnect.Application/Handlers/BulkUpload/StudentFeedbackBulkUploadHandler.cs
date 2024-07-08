@@ -111,7 +111,6 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             else if (!HasMandatoryData(sr))
             {
                 importStatus.Errors = HasMandatoryDataString(sr);
-                //importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
 
             if (importStatus.Errors != null)
@@ -133,12 +132,10 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             {
                 var headers = headerLine.Split(',');
 
-                var cck1 = headers.Contains("SurveyId");
-                var cck2 = headers.Contains("StatusUpdate");
-                var cck3 = headers.Contains("Notes");
-                var cck4 = headers.Contains("UpdatedBy");
-
-                return cck1 && cck2 && cck3 && cck4;
+                return headers.Contains("SurveyId") &&
+                    headers.Contains("StatusUpdate") && 
+                    headers.Contains("Notes") &&
+                    headers.Contains("UpdatedBy");
             }
 
             return false;
