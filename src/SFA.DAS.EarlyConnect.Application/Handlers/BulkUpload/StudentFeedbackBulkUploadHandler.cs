@@ -121,16 +121,20 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
             return importStatus;
         }
 
-        public static bool HasMandatoryData(StreamReader stream)
+        public static bool HasMandatoryData(StreamReader stream, ILogger<StudentFeedbackBulkUploadHandler> logger)
         {
             stream.DiscardBufferedData();
             stream.BaseStream.Seek(0, SeekOrigin.Begin);
 
             var headerLine = stream.ReadLine();
 
+            logger.LogInformation("Header line: ", headerLine);
+
             if (headerLine != null)
             {
                 var headers = headerLine.Split(',');
+
+                logger.LogInformation("Headers: ", headers);
 
                 return headers.Contains("SurveyId") &&
                        headers.Contains("StatusUpdate") &&
