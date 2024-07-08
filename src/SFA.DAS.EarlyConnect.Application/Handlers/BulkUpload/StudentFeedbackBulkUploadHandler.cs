@@ -108,7 +108,7 @@ namespace SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload
                 importStatus.Errors = "Missing data - there is no data to process";
             }
 
-            else if (!HasMandatoryData(sr))
+            else if (!HasMandatoryData(sr, _logger))
             {
                 importStatus.Errors = "One or more required fields are missing in the CSV header";
             }
