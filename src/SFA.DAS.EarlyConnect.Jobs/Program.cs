@@ -1,11 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NLog.Extensions.Logging;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EarlyConnect.Application.ClientWrappers;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
@@ -15,7 +12,6 @@ using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
-using System;
 using System.IO;
 
 var host = new HostBuilder()
@@ -69,7 +65,6 @@ var host = new HostBuilder()
             options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
         });
         s.ConfigureFunctionsApplicationInsights();
-
     })
     .ConfigureLogging(logging =>
     {
