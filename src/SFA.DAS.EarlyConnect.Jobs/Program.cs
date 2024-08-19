@@ -12,64 +12,180 @@ using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureServices(s =>
+namespace Esfa.Recruit.Vacancies.Jobs
+{
+    class Program
     {
-        var serviceProvider = s.BuildServiceProvider();
-        var configuration = serviceProvider.GetService<IConfiguration>();
+        public static async Task Main(string[] args)
+        {
+            ILogger logger = null;
+            try
+            {
+                var host = CreateHostBuilder().Build();
+                using (host)
+                {
+                    await host.RunAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogCritical(ex, "The Job has met with a horrible end!!");
+                throw;
+            }
+            finally
+            {
+                NLog.LogManager.Shutdown();
+            }
+        }
 
-        var configBuilder = new ConfigurationBuilder()
-        .AddConfiguration(configuration)
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddEnvironmentVariables();
-
+        private static IHostBuilder CreateHostBuilder()
+        {
+            return
+                new HostBuilder()
+                    .ConfigureHostConfiguration(configHost =>
+                    {
+                        configHost.SetBasePath(Directory.GetCurrentDirectory());
+                        configHost.AddEnvironmentVariables();
 #if DEBUG
-        configBuilder.AddJsonFile("local.settings.json", optional: true);
+                        configHost.AddJsonFile("local.settings.json", optional: true);
 #endif
+                    })
+                    .ConfigureAppConfiguration((hostBuilderContext, configBuilder) =>
+                    {
 
-        configBuilder.AddAzureTableStorage(options =>
-        {
-            options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            options.EnvironmentName = configuration["EnvironmentName"];
-            options.PreFixConfigurationKeys = false;
-        });
+                        configBuilder
+                            .AddAzureTableStorage(
+                                options =>
+                                {
+                                    options.ConfigurationKeys = hostBuilderContext.Configuration["ConfigNames"].Split(",");
+                                    options.EnvironmentName = hostBuilderContext.Configuration["Environment"];
+                                    options.StorageConnectionString = hostBuilderContext.Configuration["ConfigurationStorageConnectionString"];
+                                    options.PreFixConfigurationKeys = false;
+                                }
+                        );
+                    })
+                    .ConfigureServices((context, s) =>
+                    {
+                        var serviceProvider = s.BuildServiceProvider();
+                        var configuration = context.Configuration;
+
+                        var configBuilder = new ConfigurationBuilder()
+                        .AddConfiguration(configuration)
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddEnvironmentVariables();
+
+                        var config = configBuilder.Build();
+
+                        s.Configure<OuterApiConfiguration>(config.GetSection("OuterApiConfiguration"));
+
+                        s.AddOptions();
+
+                        s.AddHttpClient<IOuterApiClient, OuterApiClient>();
+                        s.AddTransient<ICreateLogHandler, CreateLogHandler>();
+                        s.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+                        s.AddTransient<IStudentFeedbackBulkUploadHandler, StudentFeedbackBulkUploadHandler>();
+                        s.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
+                        s.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
+                        s.AddTransient<ICsvService, CsvService>();
+                        s.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
+                        s.AddSingleton<IConfiguration>(config);
+                        s.AddTransient<IBlobService, BlobService>();
+                        s.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
+                            new BlobContainerClientWrapper(config.GetValue<string>("AzureWebJobsStorage")));
+
+                        s.AddApplicationInsightsTelemetryWorkerService(options =>
+                        {
+                            options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
+                        });
+                        s.ConfigureFunctionsApplicationInsights();
+                    })
+                    .ConfigureLogging(logging =>
+                    {
+                        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+                    });
+        }
+    }
+ }
 
 
-        var config = configBuilder.Build();
-        //s.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
-        // ConfigureServices(builder.Services, config);
+//var host = new HostBuilder()
+//    .ConfigureFunctionsWebApplication()
+//    .ConfigureHostConfiguration(configHost =>
+//    {
+//        configHost.SetBasePath(Directory.GetCurrentDirectory());
+//        configHost.AddEnvironmentVariables();
+//#if DEBUG
+//        configHost.AddJsonFile("local.settings.json", optional: true);
+//#endif
+//    })
+//    .ConfigureWebJobs(b =>
+//    {
+//        b.AddAzureStorageCoreServices()
+//            .AddAzureStorageBlobs()
+//            .AddAzureStorageQueues()
+//            .AddAzureStorage()
+//            .AddTimers();
+//    })
+//    .ConfigureAppConfiguration((hostBuilderContext, configBuilder) =>
+//    {
 
-        s.Configure<OuterApiConfiguration>(config.GetSection("OuterApiConfiguration"));
+//        configBuilder
+//            .AddAzureTableStorage(
+//                options =>
+//                {
+//                    options.ConfigurationKeys = hostBuilderContext.Configuration["ConfigNames"].Split(",");
+//                    options.EnvironmentName = hostBuilderContext.Configuration["Environment"];
+//                    options.StorageConnectionString = hostBuilderContext.Configuration["ConfigurationStorageConnectionString"];
+//                    options.PreFixConfigurationKeys = false;
+//                }
+//        );
+//    })
+//    .ConfigureServices((context, s) =>
+//    {
+//        var serviceProvider = s.BuildServiceProvider();
+//        var configuration = context.Configuration;
 
-        s.AddOptions();
+//        var configBuilder = new ConfigurationBuilder()
+//        .AddConfiguration(configuration)
+//        .SetBasePath(Directory.GetCurrentDirectory())
+//        .AddEnvironmentVariables();
 
-        s.AddHttpClient<IOuterApiClient, OuterApiClient>();
-        s.AddTransient<ICreateLogHandler, CreateLogHandler>();
-        s.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
-        s.AddTransient<IStudentFeedbackBulkUploadHandler, StudentFeedbackBulkUploadHandler>();
-        s.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
-        s.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
-        s.AddTransient<ICsvService, CsvService>();
-        s.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
-        s.AddSingleton<IConfiguration>(config);
-        s.AddTransient<IBlobService, BlobService>();
-        s.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
-            new BlobContainerClientWrapper(config.GetValue<string>("AzureWebJobsStorage")));
 
-        s.AddApplicationInsightsTelemetryWorkerService(options =>
-        {
-            options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
-        });
-        s.ConfigureFunctionsApplicationInsights();
-    })
-    .ConfigureLogging(logging =>
-    {
-        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-    })
-    .Build();
+//        var config = configBuilder.Build();
+//        s.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
+//        ConfigureServices(builder.Services, config);
 
-host.Run();
+//        s.Configure<OuterApiConfiguration>(config.GetSection("OuterApiConfiguration"));
+
+//        s.AddOptions();
+
+//        s.AddHttpClient<IOuterApiClient, OuterApiClient>();
+//        s.AddTransient<ICreateLogHandler, CreateLogHandler>();
+//        s.AddTransient<IMetricsDataBulkUploadHandler, MetricsDataBulkUploadHandler>();
+//        s.AddTransient<IStudentFeedbackBulkUploadHandler, StudentFeedbackBulkUploadHandler>();
+//        s.AddTransient<IMetricsDataBulkExportHandler, MetricsDataBulkExportHandler>();
+//        s.AddTransient<IGetLEPSDataWithUsersHandler, GetLEPSDataWithUsersHandler>();
+//        s.AddTransient<ICsvService, CsvService>();
+//        s.AddTransient<IUpdateLogHandler, UpdateLogHandler>();
+//        s.AddSingleton<IConfiguration>(config);
+//        s.AddTransient<IBlobService, BlobService>();
+//        s.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
+//            new BlobContainerClientWrapper(config.GetValue<string>("AzureWebJobsStorage")));
+
+//        s.AddApplicationInsightsTelemetryWorkerService(options =>
+//        {
+//            options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
+//        });
+//        s.ConfigureFunctionsApplicationInsights();
+//    })
+//    .ConfigureLogging(logging =>
+//    {
+//        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+//    })
+//    .Build();
+
+//host.Run();
