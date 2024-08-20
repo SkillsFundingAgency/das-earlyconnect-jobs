@@ -41,9 +41,9 @@ namespace SFA.DAS.EarlyConnect.Jobs.Helpers
             return logId;
         }
 
-        public static async Task<int> CreateLog(string content, string fileName, ExecutionContext context, string requestResource, ICreateLogHandler _createLogHandler)
+        public static async Task<int> CreateLog(string content, string fileName, FunctionContext context, string requestResource, ICreateLogHandler _createLogHandler)
         {
-            var actionName = context.FunctionName;
+            var actionName = context.FunctionDefinition.Name;
 
             var createLog = new CreateLog
             {

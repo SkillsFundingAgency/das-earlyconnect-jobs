@@ -2,8 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
@@ -31,24 +30,24 @@ namespace SFA.DAS.EarlyConnect.Functions
             _updateLogHandler = updateLogHandler;
         }
 
-        [FunctionName("ReminderEmail_Timer")]
+        [Function("ReminderEmail_Timer")]
         public async Task RunTimer(
             [TimerTrigger("%Functions:ReminderEmailJobSchedule%")] TimerInfo timerInfo,
-            ILogger log, ExecutionContext context)
+            ILogger log, FunctionContext context)
         {
             await Run(null, log, context);
         }
 
-        [FunctionName("ReminderEmail_Http")]
+        [Function("ReminderEmail_Http")]
         public async Task<IActionResult> RunHttp(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log, ExecutionContext context)
+            ILogger log, FunctionContext context)
         {
             await Run(req, log, context);
             return new OkResult();
         }
 
-        private async Task Run(HttpRequest req, ILogger log, ExecutionContext context)
+        private async Task Run(HttpRequest req, ILogger log, FunctionContext context)
         {
             int logId = 0;
             string region = null;
