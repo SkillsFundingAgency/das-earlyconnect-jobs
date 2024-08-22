@@ -11,10 +11,9 @@ namespace SFA.DAS.EarlyConnect.Jobs.Helpers
 {
     public static class LogHelper
     {
-        public static async Task<int> CreateLog(Stream fileStream, string fileName, FunctionContext context, string requestResource, ICreateLogHandler _createLogHandler)
+        public static async Task<int> CreateLog(Stream fileStream, string fileName, string actionName, string requestResource, ICreateLogHandler _createLogHandler)
         {
             string fileContent;
-            var actionName = context.FunctionDefinition.Name;
 
             using (var memoryStream = new MemoryStream())
             {
@@ -41,10 +40,8 @@ namespace SFA.DAS.EarlyConnect.Jobs.Helpers
             return logId;
         }
 
-        public static async Task<int> CreateLog(string content, string fileName, FunctionContext context, string requestResource, ICreateLogHandler _createLogHandler)
+        public static async Task<int> CreateLog(string content, string fileName, string actionName, string requestResource, ICreateLogHandler _createLogHandler)
         {
-            var actionName = context.FunctionDefinition.Name;
-
             var createLog = new CreateLog
             {
                 RequestType = actionName,

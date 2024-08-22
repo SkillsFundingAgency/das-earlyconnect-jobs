@@ -32,22 +32,22 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         [Function("ReminderEmail_Timer")]
         public async Task RunTimer(
-            [TimerTrigger("%Functions:ReminderEmailJobSchedule%")] TimerInfo timerInfo,
-            ILogger log, FunctionContext context)
+            [TimerTrigger("0 0 * * *")] TimerInfo timerInfo,
+            ILogger log)
         {
-            await Run(null, log, context);
+            await Run(null, log);
         }
 
         [Function("ReminderEmail_Http")]
         public async Task<IActionResult> RunHttp(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log, FunctionContext context)
+            ILogger log)
         {
-            await Run(req, log, context);
+            await Run(req, log);
             return new OkResult();
         }
 
-        private async Task Run(HttpRequest req, ILogger log, FunctionContext context)
+        private async Task Run(HttpRequest req, ILogger log)
         {
             int logId = 0;
             string region = null;
@@ -56,7 +56,7 @@ namespace SFA.DAS.EarlyConnect.Functions
                 ReminderEmail reminderEmail = new ReminderEmail { LepsCode = region };
                 log.LogInformation($"Function triggered for reminder email {region}");
 
-                logId = await LogHelper.CreateLog(JsonConvert.SerializeObject(reminderEmail), "", context, "other", _createLogHandler);
+                logId = await LogHelper.CreateLog(JsonConvert.SerializeObject(reminderEmail), "", "ReminderEmail", "other", _createLogHandler);
 
                 var sendReminderEmailResponse = await _sendReminderEmailHandler.Handle(reminderEmail);
 

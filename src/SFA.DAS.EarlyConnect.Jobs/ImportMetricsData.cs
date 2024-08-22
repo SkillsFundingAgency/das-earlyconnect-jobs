@@ -44,7 +44,7 @@ namespace SFA.DAS.EarlyConnect.Functions
         }
 
         [Function("ImportMetricsData")]
-        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName, FunctionContext context)
+        public async Task Run([BlobTrigger("import-metricsdata/{fileName}")] Stream fileStream, string fileName)
         {
             int logId = 0;
 
@@ -53,14 +53,17 @@ namespace SFA.DAS.EarlyConnect.Functions
 
                 _logger.LogInformation($"Blob trigger function Processed blob\n Name:{fileName} \n Size: {fileStream.Length} Bytes");
 
-                logId = await LogHelper.CreateLog(fileStream, fileName, context, "UCAS", _createLogHandler);
+                logId = await LogHelper.CreateLog(fileStream, fileName, "ImportMetricsData", "UCAS", _createLogHandler);
+                _logger.LogInformation($"Log created!");
 
                 var bulkImportStatus = await _metricsDataBulkUploadHandler.Handle(fileStream, logId);
 
                 if (bulkImportStatus.Status == ImportStatus.Completed)
                 {
                     await LogHelper.UpdateLog(logId, ImportStatus.Completed, _updateLogHandler);
+                    _logger.LogInformation($"Status completed");
                     await _blobService.CopyBlobAsync(fileName, _sourceContainer, _archivedCompletedContainer);
+                    _logger.LogInformation($"Status completed - cpy done");
 
                 }
                 else if (bulkImportStatus.Status == ImportStatus.Error)
