@@ -9,6 +9,7 @@ using SFA.DAS.EarlyConnect.Application.Handlers.BulkExport;
 using SFA.DAS.EarlyConnect.Application.Handlers.BulkUpload;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
 using SFA.DAS.EarlyConnect.Application.Handlers.GetLEPSDataWithUsers;
+using SFA.DAS.EarlyConnect.Application.Handlers.SendReminderEmail;
 using SFA.DAS.EarlyConnect.Application.Handlers.UpdateLog;
 using SFA.DAS.EarlyConnect.Application.Services;
 using SFA.DAS.EarlyConnect.Infrastructure.OuterApi;
@@ -144,6 +145,7 @@ var host = new HostBuilder()
         s.AddTransient<IBlobService, BlobService>();
         s.AddTransient<IBlobContainerClientWrapper, BlobContainerClientWrapper>(x =>
             new BlobContainerClientWrapper(config.GetValue<string>("AzureWebJobsStorage")));
+        s.AddTransient<ISendReminderEmailHandler, SendReminderEmailHandler>();
 
         s.AddApplicationInsightsTelemetryWorkerService(options =>
         {
