@@ -17,6 +17,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         private Mock<ISendReminderEmailHandler> mockSendReminderEmailHandler;
         private Mock<ICreateLogHandler> _mockCreateLogHandler;
         private Mock<IUpdateLogHandler> _mockUpdateLogHandler;
+        private Mock<ILogger<StudentSurveyReminderEmail>> _logger;
         private StudentSurveyReminderEmail studentSurveyReminderEmail;
         private FunctionContext _functionContext;
 
@@ -31,7 +32,8 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             studentSurveyReminderEmail = new StudentSurveyReminderEmail(
                 mockSendReminderEmailHandler.Object,
                   _mockCreateLogHandler.Object,
-                _mockUpdateLogHandler.Object);
+                _mockUpdateLogHandler.Object,
+                _logger.Object);
         }
 
         //[Test]
@@ -41,7 +43,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         //         .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
         //             .ReturnsAsync("Success");
 
-        //    await studentSurveyReminderEmail.RunTimer(null, new Mock<ILogger>().Object, _executionContext);
+        //    await studentSurveyReminderEmail.RunTimer(null);
 
         //    mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
         //}
@@ -53,7 +55,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         //         .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
         //             .ReturnsAsync("Success");
 
-        //    await studentSurveyReminderEmail.RunHttp(null, new Mock<ILogger>().Object, _executionContext);
+        //    await studentSurveyReminderEmail.RunHttp(null);
 
         //    mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
         //}
