@@ -155,7 +155,7 @@ var host = new HostBuilder()
     })
     .ConfigureLogging(logging =>
     {
-        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+        logging.AddFilter("Microsoft", LogLevel.Warning);
     })
     .Build();
 
