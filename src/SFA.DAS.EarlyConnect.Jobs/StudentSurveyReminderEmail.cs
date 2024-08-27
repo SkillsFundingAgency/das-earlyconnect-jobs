@@ -32,7 +32,7 @@ namespace SFA.DAS.EarlyConnect.Functions
 
         [Function("ReminderEmail_Timer")]
         public async Task RunTimer(
-            [TimerTrigger("0 0 * * *")] TimerInfo timerInfo,
+            [TimerTrigger("*/5 * * * *")] TimerInfo timerInfo,
             ILogger log)
         {
             await Run(null, log);
