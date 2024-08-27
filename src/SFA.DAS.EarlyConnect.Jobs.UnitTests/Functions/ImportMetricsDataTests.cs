@@ -29,7 +29,6 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         private string _fileName;
         private Stream _fileStream;
         private ILogger<ImportMetricsData> _logger;
-        private FunctionContext _executionContext;
 
         [SetUp]
         public void SetUp()
@@ -56,49 +55,48 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
 
             _fileName = "testFile.csv";
             _fileStream = new MemoryStream();
-            _executionContext = Mock.Of<FunctionContext>();
         }
 
-        //[Test]
-        //public async Task Run_SuccessCase_UpdatesLogForCompletedStatus()
-        //{
-        //    _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-        //        .ReturnsAsync(Mock.Of<Response>());
+        [Test]
+        public async Task Run_SuccessCase_UpdatesLogForCompletedStatus()
+        {
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Mock.Of<Response>());
 
-        //    _mockMetricsDataBulkUploadHandler
-        //        .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
-        //        .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Completed });
+            _mockMetricsDataBulkUploadHandler
+                .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
+                .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Completed });
 
-        //    _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
-        //        .ReturnsAsync(1);
+            _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
+                .ReturnsAsync(1);
 
-        //    await _importMetricsData.Run(_fileStream, _fileName, _executionContext);
+            await _importMetricsData.Run(_fileStream, _fileName);
 
-        //    _mockUpdateLogHandler.Verify(
-        //        x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Completed.ToString())),
-        //        Times.Once
-        //    );
-        //}
+            _mockUpdateLogHandler.Verify(
+                x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Completed.ToString())),
+                Times.Once
+            );
+        }
 
-        //[Test]
-        //public async Task Run_FailedCase_UpdatesLogForErrorStatus()
-        //{
-        //    _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-        //        .ReturnsAsync(Mock.Of<Response>());
+        [Test]
+        public async Task Run_FailedCase_UpdatesLogForErrorStatus()
+        {
+            _mockBlobService.Setup(x => x.CopyBlobAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Mock.Of<Response>());
 
-        //    _mockMetricsDataBulkUploadHandler
-        //        .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
-        //        .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Error });
+            _mockMetricsDataBulkUploadHandler
+                .Setup(h => h.Handle(It.IsAny<Stream>(), It.IsAny<int>()))
+                .ReturnsAsync(new BulkImportStatus { Status = ImportStatus.Error });
 
-        //    _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
-        //        .ReturnsAsync(1);
+            _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
+                .ReturnsAsync(1);
 
-        //    await _importMetricsData.Run(_fileStream, _fileName, _executionContext);
+            await _importMetricsData.Run(_fileStream, _fileName);
 
-        //    _mockUpdateLogHandler.Verify(
-        //        x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Error.ToString())),
-        //        Times.Once
-        //    );
-        //}
+            _mockUpdateLogHandler.Verify(
+                x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Error.ToString())),
+                Times.Once
+            );
+        }
     }
 }

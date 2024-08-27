@@ -28,6 +28,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             _mockCreateLogHandler = new Mock<ICreateLogHandler>();
             _mockUpdateLogHandler = new Mock<IUpdateLogHandler>();
             _functionContext = Mock.Of<FunctionContext>();
+            _logger = new Mock<ILogger<StudentSurveyReminderEmail>>();
 
             studentSurveyReminderEmail = new StudentSurveyReminderEmail(
                 mockSendReminderEmailHandler.Object,
@@ -36,28 +37,28 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
                 _logger.Object);
         }
 
-        //[Test]
-        //public async Task RunTimer_ShouldCallHandleAndSendReminderEmail()
-        //{
-        //    mockSendReminderEmailHandler
-        //         .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
-        //             .ReturnsAsync("Success");
+        [Test]
+        public async Task RunTimer_ShouldCallHandleAndSendReminderEmail()
+        {
+            mockSendReminderEmailHandler
+                 .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
+                     .ReturnsAsync("Success");
 
-        //    await studentSurveyReminderEmail.RunTimer(null);
+            await studentSurveyReminderEmail.RunTimer(null);
 
-        //    mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
-        //}
+            mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
+        }
 
-        //[Test]
-        //public async Task RunHttp_ShouldCallHandleAndSendReminderEmail()
-        //{
-        //    mockSendReminderEmailHandler
-        //         .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
-        //             .ReturnsAsync("Success");
+        [Test]
+        public async Task RunHttp_ShouldCallHandleAndSendReminderEmail()
+        {
+            mockSendReminderEmailHandler
+                 .Setup(handler => handler.Handle(It.IsAny<ReminderEmail>()))
+                     .ReturnsAsync("Success");
 
-        //    await studentSurveyReminderEmail.RunHttp(null);
+            await studentSurveyReminderEmail.RunHttp(null);
 
-        //    mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
-        //}
+            mockSendReminderEmailHandler.Verify(handler => handler.Handle(It.IsAny<ReminderEmail>()), Times.Exactly(1));
+        }
     }
 }
