@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Azure;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,8 +28,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         private ImportMetricsData _importMetricsData;
         private string _fileName;
         private Stream _fileStream;
-        private ILogger _logger;
-        private ExecutionContext _executionContext;
+        private ILogger<ImportMetricsData> _logger;
 
         [SetUp]
         public void SetUp()
@@ -38,6 +37,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             _mockCreateLogHandler = new Mock<ICreateLogHandler>();
             _mockUpdateLogHandler = new Mock<IUpdateLogHandler>();
             _mockBlobService = new Mock<IBlobService>();
+            _logger = Mock.Of<ILogger<ImportMetricsData>>();
 
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(x => x["SourceContainer"]).Returns("source-container");
@@ -50,12 +50,11 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
                 _mockCreateLogHandler.Object,
                 _mockUpdateLogHandler.Object,
                 _mockBlobService.Object,
-                mockConfiguration.Object);
+                mockConfiguration.Object,
+                _logger);
 
             _fileName = "testFile.csv";
             _fileStream = new MemoryStream();
-            _logger = Mock.Of<ILogger>();
-            _executionContext = Mock.Of<ExecutionContext>();
         }
 
         [Test]
@@ -71,7 +70,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
                 .ReturnsAsync(1);
 
-            await _importMetricsData.Run(_fileStream, _fileName, _logger, _executionContext);
+            await _importMetricsData.Run(_fileStream, _fileName);
 
             _mockUpdateLogHandler.Verify(
                 x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Completed.ToString())),
@@ -92,7 +91,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             _mockCreateLogHandler.Setup(x => x.Handle(It.IsAny<CreateLog>()))
                 .ReturnsAsync(1);
 
-            await _importMetricsData.Run(_fileStream, _fileName, _logger, _executionContext);
+            await _importMetricsData.Run(_fileStream, _fileName);
 
             _mockUpdateLogHandler.Verify(
                 x => x.Handle(It.Is<UpdateLog>(ul => ul.Status == ImportStatus.Error.ToString())),

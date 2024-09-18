@@ -2,8 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EarlyConnect.Application.Handlers.CreateLog;
@@ -20,90 +19,62 @@ namespace SFA.DAS.EarlyConnect.Functions
         private readonly ISendReminderEmailHandler _sendReminderEmailHandler;
         private readonly ICreateLogHandler _createLogHandler;
         private readonly IUpdateLogHandler _updateLogHandler;
+        private readonly ILogger<StudentSurveyReminderEmail> _logger;
 
         public StudentSurveyReminderEmail(
             ISendReminderEmailHandler sendReminderEmailHandler,
             ICreateLogHandler createLogHandler,
-            IUpdateLogHandler updateLogHandler)
+            IUpdateLogHandler updateLogHandler,
+            ILogger<StudentSurveyReminderEmail> logger)
         {
             _sendReminderEmailHandler = sendReminderEmailHandler;
             _createLogHandler = createLogHandler;
             _updateLogHandler = updateLogHandler;
+            _logger = logger;
         }
 
-        [FunctionName("ReminderEmail_Timer")]
+        [Function("ReminderEmail_Timer")]
         public async Task RunTimer(
-            [TimerTrigger("%Functions:ReminderEmailJobSchedule%")] TimerInfo timerInfo,
-            ILogger log, ExecutionContext context)
+            [TimerTrigger("30 8 * * * *")] TimerInfo timerInfo)
         {
-            await Run(null, log, context);
+            await Run(null);
         }
 
-        [FunctionName("ReminderEmail_Http")]
+        [Function("ReminderEmail_Http")]
         public async Task<IActionResult> RunHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log, ExecutionContext context)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
         {
-            await Run(req, log, context);
+            await Run(req);
             return new OkResult();
         }
 
-        private async Task Run(HttpRequest req, ILogger log, ExecutionContext context)
+        private async Task Run(HttpRequest req)
         {
             int logId = 0;
             string region = null;
             try
             {
                 ReminderEmail reminderEmail = new ReminderEmail { LepsCode = region };
-                log.LogInformation($"Function triggered for reminder email {region}");
+                _logger.LogInformation($"Function triggered for reminder email {region}");
 
-                logId = await LogHelper.CreateLog(JsonConvert.SerializeObject(reminderEmail), "", context, "other", _createLogHandler);
+                logId = await LogHelper.CreateLog(JsonConvert.SerializeObject(reminderEmail), "", "ReminderEmail", "other", _createLogHandler);
 
                 var sendReminderEmailResponse = await _sendReminderEmailHandler.Handle(reminderEmail);
 
                 await LogHelper.UpdateLog(logId, ImportStatus.Completed, _updateLogHandler, sendReminderEmailResponse);
 
-                log.LogInformation($"Function execution completed for reminder email {region}");
+                _logger.LogInformation($"Function execution completed for reminder email {region}");
             }
             catch (Exception ex)
             {
                 var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
 
-                log.LogError($"Unable to send reminder email: {ex}");
+                _logger.LogError($"Unable to send reminder email: {ex}");
 
                 if (logId > 0) await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, $"Error posting reminder email {region}. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
 
                 throw;
             }
         }
-
-        //private async Task Run(HttpRequest req, ILogger log, ExecutionContext context)
-        //{
-        //    int logId = 0;
-        //    string region = LepsRegion.NorthEast;
-        //    try
-        //    {
-        //        ReminderEmail reminderEmail = new ReminderEmail { LepsCode = region };
-        //        log.LogInformation($"Function triggered for reminder email {region}");
-
-        //        logId = await LogHelper.CreateLog(JsonConvert.SerializeObject(reminderEmail), "", context, "other", _createLogHandler);
-
-        //        var sendReminderEmailResponse = await _sendReminderEmailHandler.Handle(reminderEmail);
-
-        //        await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, sendReminderEmailResponse);
-
-        //        log.LogInformation($"Function execution completed for reminder email {region}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var errorMessage = (ex as Infrastructure.Extensions.ApiResponseException)?.Error;
-
-        //        log.LogError($"Unable to send reminder email: {ex}");
-
-        //        if (logId > 0) await LogHelper.UpdateLog(logId, ImportStatus.Error, _updateLogHandler, $"Error posting reminder email {region}. {(errorMessage != null ? $"\nErrorInfo: {errorMessage}" : "")}\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}");
-
-        //        throw;
-        //    }
-        //}
     }
 }

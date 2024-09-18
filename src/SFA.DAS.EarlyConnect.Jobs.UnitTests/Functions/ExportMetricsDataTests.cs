@@ -25,6 +25,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
         private Mock<IBlobService> mockBlobService;
         private Mock<IConfiguration> mockConfiguration;
         private ExportMetricsData exportMetricsData;
+        private ILogger<ExportMetricsData> _logger;
 
         [SetUp]
         public void Setup()
@@ -33,12 +34,14 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
             mockGetLEPSDataWithUsersHandler = new Mock<IGetLEPSDataWithUsersHandler>();
             mockBlobService = new Mock<IBlobService>();
             mockConfiguration = new Mock<IConfiguration>();
+            _logger = Mock.Of<ILogger<ExportMetricsData>>();
 
             exportMetricsData = new ExportMetricsData(
                 mockMetricsDataBulkDownloadHandler.Object,
                 mockBlobService.Object,
                 mockConfiguration.Object,
-                mockGetLEPSDataWithUsersHandler.Object);
+                mockGetLEPSDataWithUsersHandler.Object,
+                _logger);
         }
 
         [Test]
@@ -68,7 +71,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
                  .Setup(blobService => blobService.UploadToBlob(It.IsAny<List<List<KeyValuePair<string, string>>>>(), It.IsAny<string>(), It.IsAny<string>()))
                  .ReturnsAsync(responseMock.Object);
 
-            await exportMetricsData.RunTimer(null, new Mock<ILogger>().Object);
+            await exportMetricsData.RunTimer(null);
 
             mockMetricsDataBulkDownloadHandler.Verify(handler => handler.Handle(It.IsAny<string>()), Times.Exactly(3));
             mockBlobService.Verify(blobService => blobService.UploadToBlob(It.IsAny<List<List<KeyValuePair<string, string>>>>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(3));
@@ -103,7 +106,7 @@ namespace SFA.DAS.EarlyConnect.Jobs.UnitTests.Functions
                   .Setup(blobService => blobService.UploadToBlob(It.IsAny<List<List<KeyValuePair<string, string>>>>(), It.IsAny<string>(), It.IsAny<string>()))
                   .ReturnsAsync(responseMock.Object);
 
-            var result = await exportMetricsData.RunHttp(mockHttpRequest.Object, new Mock<ILogger>().Object) as OkResult;
+            var result = await exportMetricsData.RunHttp(mockHttpRequest.Object) as OkResult;
 
             Assert.IsNotNull(result);
             mockMetricsDataBulkDownloadHandler.Verify(handler => handler.Handle(It.IsAny<string>()), Times.Exactly(3));
