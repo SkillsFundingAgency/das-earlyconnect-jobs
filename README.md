@@ -40,29 +40,10 @@ A collection of functions, API’s and micro-site that supports a triage form wh
 
 This utility uses the standard Apprenticeship Service configuration. All configuration can be found in the [das-employer-config repository](https://github.com/SkillsFundingAgency/das-employer-config).
 
-AppSettings.Development.json file
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning"
-    }
-  },
-  "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
-  "ConfigNames": "SFA.DAS.EarlyConnect.Web",
-  "EnvironmentName": "LOCAL",
-  "Version": "1.0",
-  "APPINSIGHTS_INSTRUMENTATIONKEY": "",
-  "AllowedHosts": "*",
-  "cdn": {
-    "url": "https://das-at-frnt-end.azureedge.net"
-  }
-} 
-```
 
 Azure Table Storage config
 
-Row Key: SFA.DAS.EarlyConnect.Web_1.0
+Row Key: SFA.DAS.EarlyConnect.Jobs_1.0
 
 Partition Key: LOCAL
 
@@ -70,24 +51,22 @@ Data:
 
 ```json
 {
-  "EarlyConnectWeb": {
-    "LepCodes": {
-      "NorthEast": "",
-      "Lancashire": "",
-      "GreaterLondon": ""
-    },
-    "LinkValidityDays": 14
+   "OuterApiConfiguration": {
+    "BaseUrl": "https://*********.apprenticeships.education.gov.uk/",
+    "Key": "123456789abcdefg"
   },
-  "GoogleAnalytics": {
-    "TrackingManagerCode": ""
+  "Functions": {
+    "ExportMetricsDataJobSchedule": "0 0 * * 0",
+    "ReminderEmailJobSchedule": "0 0 * * *"
   },
-  "EarlyConnectOuterApi": {
-    "ApiBaseUrl": "https://localhost:7101/early-connect/",
-    "SubscriptionKey": ""
-  },
-  "EarlyConnect": {
-    "RedisConnectionString": "localhost",
-    "DataProtectionKeysDatabase": "DefaultDatabase=3"
+  "Containers": {
+    "MetricsDataSourceContainer": "import-metricsdata",
+    "MetricsDataArchivedCompletedContainer": "archived-completed-metricsdata",
+    "MetricsDataArchivedFailedContainer": "archived-error-metricsdata",
+    "MetricsDataExportContainer": "export-metricsdata",
+    "StudentFeedbackSourceContainer": "import-studentfeedback",
+    "StudentFeedbackArchivedCompletedContainer": "archived-completed-studentfeedback",
+    "StudentFeedbackArchivedFailedContainer": "archived-error-studentfeedback"
   }
 }
 ```
