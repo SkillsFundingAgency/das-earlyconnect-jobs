@@ -27,6 +27,10 @@ Early connect: GAA
 
 A collection of functions, API’s and micro-site that supports a triage form where users can enter their details and get sent 
 
+When survey data is sent to the LEP platform that has matched the postcode in the survey, a representative of the LEP will contact the student and fill in details about the candidate. On a weekly basis this data is sent to DfE via an email with the data attached in CSV format
+
+This file is received by a member of the team and copied over to azure blob storage. The process of copying this file to blob storage fires an event which kicks off the ImportStudentFeedback webjob. This job will store the csv into a data table in SQL Server
+
 ## 🚀 Installation
 
 ### Pre-Requisites
@@ -78,13 +82,11 @@ Check [das-employer-config repository](https://github.com/SkillsFundingAgency/da
 
 ```
 * .NET 8.0  
-* ASP.NET Core  
-* Azure Table Storage  
-* Redis
-* FluentValidation  
+* Azure Functions (v4)  
 * Application Insights  
-* Newtonsoft.Json  
-* libphonenumber-csharp
+* Azure Storage (Blobs, Queues, Tables)  
+* Azure Timer Trigger  
+* Azure Table Storage Configuration  
 * NUnit
 * Moq
 ```
